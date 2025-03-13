@@ -1,33 +1,42 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.gui
 
 import com.watabou.noosa.NinePatch
+import kotlin.math.roundToInt
 
-data class Vec2(val x: Int, val y: Int)
+data class Vec2(val x: Int, val y: Int) {
+    operator fun plus(other: Vec2): Vec2 {
+        return Vec2(x + other.x, y + other.y)
+    }
 
-operator fun Vec2.plus(other: Vec2): Vec2 {
-    return Vec2(x + other.x, y + other.y)
+    operator fun minus(other: Vec2): Vec2 {
+        return Vec2(x - other.x, y - other.y)
+    }
+
+    operator fun times(other: Int): Vec2 {
+        return Vec2(x * other, y * other)
+    }
+
+    fun scaleRounding(factor: Float): Vec2 {
+        return Vec2((x * factor).roundToInt(), (y * factor).roundToInt())
+    }
+
+    fun scaleTruncating(factor: Float): Vec2 {
+        return Vec2((x * factor).toInt(), (y * factor).toInt())
+    }
 }
 
-operator fun Vec2.minus(other: Vec2): Vec2 {
-    return Vec2(x - other.x, y - other.y)
-}
+data class Pos2(val x: Int, val y: Int) {
+    operator fun plus(other: Vec2): Pos2 {
+        return Pos2(x + other.x, y + other.y)
+    }
 
-operator fun Vec2.times(other: Int): Vec2 {
-    return Vec2(x * other, y * other)
-}
+    operator fun minus(other: Vec2): Pos2 {
+        return Pos2(x - other.x, y - other.y)
+    }
 
-data class Pos2(val x: Int, val y: Int)
-
-operator fun Pos2.plus(other: Vec2): Pos2 {
-    return Pos2(x + other.x, y + other.y)
-}
-
-operator fun Pos2.minus(other: Vec2): Pos2 {
-    return Pos2(x - other.x, y - other.y)
-}
-
-operator fun Pos2.minus(other: Pos2): Vec2 {
-    return Vec2(x - other.x, y - other.y)
+    operator fun minus(other: Pos2): Vec2 {
+        return Vec2(x - other.x, y - other.y)
+    }
 }
 
 @ExposedCopyVisibility
@@ -69,7 +78,7 @@ data class Rect private constructor(val min: Pos2, val max: Pos2) {
             kotlin.math.min(max.x, other.max.x),
             kotlin.math.min(max.y, other.max.y)
         )
-        if (min.x >= max.x || min.y >= max.y) {
+        if (min.x > max.x || min.y > max.y) {
             return null
         }
         return fromMinMax(min, max)

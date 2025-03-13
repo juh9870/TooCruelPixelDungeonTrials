@@ -2,11 +2,14 @@ package com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets
 
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Vec2
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.useMemo
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Ui
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiResponse
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.WidgetResponse
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock
+import com.watabou.noosa.RenderedText
 import kotlin.math.ceil
+import kotlin.math.round
 
 class UiText(val text: String, val size: Int, val multiline: Boolean) {
     fun show(ui: Ui): WidgetResponse<RenderedTextBlock> {
@@ -45,4 +48,54 @@ fun Ui.activeLabel(
         res.widget.alpha(0.3f)
     }
     return res
+}
+
+@Suppress("NAME_SHADOWING")
+fun Ui.shrinkToFitLabel(text: String, defaultSize: Int, height: Int? = null): WidgetResponse<RenderedTextBlock> {
+    val availableWidth = top().nextAvailableSpace().width()
+    val size by useMemo(Pair(text, availableWidth)) {
+        var size = defaultSize
+        do {
+            val width = measureTextWidth(text, size)
+            if (width <= availableWidth) break
+            size--
+        } while (size > 3)
+        return@useMemo size
+    }
+    val height = height ?: textHeight(defaultSize)
+
+    return horizontal {
+        val spacer = spacer(Vec2(0, height))
+
+        val allocated =
+            top().allocateSize(Vec2(availableWidth, spacer.rect.height()))
+        val id = top().nextAutoId();
+        val text = top().painter()
+            .drawText(id, allocated, text, size, false)
+        text.setPos(
+            allocated.left().toFloat(),
+            allocated.top().toFloat() + (allocated.height()
+                .toFloat() - text.height()) / 2
+        )
+        WidgetResponse(text, UiResponse(allocated, id))
+    }.inner
+}
+
+class LRUCache<K, V>(private val capacity: Int) : LinkedHashMap<K, V>(capacity, 0.75f, true) {
+    override fun removeEldestEntry(eldest: Map.Entry<K, V>?): Boolean {
+        return size > capacity
+    }
+}
+
+private val MEASURED_TEXT: LRUCache<Pair<String, Int>, Float> = LRUCache(256)
+
+fun measureTextWidth(text: String, size: Int): Float {
+    val key = Pair(text, size)
+    return MEASURED_TEXT.getOrPut(key) {
+        RenderedText(text, size).width
+    }
+}
+
+fun textHeight(size: Int): Int {
+    return round(size * 0.75f).toInt()
 }

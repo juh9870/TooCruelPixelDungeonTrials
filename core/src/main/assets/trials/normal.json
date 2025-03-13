@@ -1,0 +1,52 @@
+{
+    "name": "Normal",
+    "version": 4,
+    "trials": [
+        {
+            "name": "Tier List",
+            "modifiers": "1FSb3FHR"
+        },
+        {
+            "name": "Bloodbath",
+            "modifiers": "115tb"
+        },
+        {
+            "name": "Great Faith",
+            "modifiers": "8Do289m",
+            "locked_class": "CLERIC"
+        },
+        {
+            "name": "Withered Garden",
+            "modifiers": "2Ej",
+            "locked_class": "HUNTRESS"
+        },
+        {
+            "name": "Champion's Path",
+            "modifiers": "7d"
+        },
+        {
+            "name": "Downgrade",
+            "modifiers": "zmM9z5u"
+        },
+        {
+            "name": "Amethyst",
+            "modifiers": "11D"
+        },
+        {
+            "name": "Clumsiness Unforgiven",
+            "modifiers": "11FSnu9qq"
+        },
+        {
+            "name": "Minefield",
+            "modifiers": "1116"
+        },
+        {
+            "name": "Toxic Spillage",
+            "modifiers": "1111B"
+        },
+        {
+            "name": "Unarmored Statue",
+            "modifiers": "NfP9k6t"
+        }
+    ]
+}

@@ -461,6 +461,18 @@ public class Bundle {
 		}
 	}
 
+	public void put( String key, Bundle[] array ){
+		try {
+			JSONArray jsonArray = new JSONArray();
+			for (int i=0; i < array.length; i++) {
+				jsonArray.put( i, array[i].data );
+			}
+			data.put( key, jsonArray );
+		} catch (JSONException e) {
+			Game.reportException(e);
+		}
+	}
+
 	public void put( String key, Collection<? extends Bundlable> collection ) {
 		JSONArray array = new JSONArray();
 		for (Bundlable object : collection) {

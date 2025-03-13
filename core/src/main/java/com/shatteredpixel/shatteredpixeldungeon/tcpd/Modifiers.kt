@@ -173,6 +173,10 @@ class Modifiers() : Bundlable {
         }
     }
 
+    fun asRaw(): BooleanArray {
+        return modifiers.copyOf()
+    }
+
     fun isChallenged(): Boolean {
         return modifiers.any { it }
     }

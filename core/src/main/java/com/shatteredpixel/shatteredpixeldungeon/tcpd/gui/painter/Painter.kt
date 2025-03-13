@@ -1,7 +1,10 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter
 
 import com.shatteredpixel.shatteredpixeldungeon.Chrome
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene
+import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Pos2
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Rect
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiId
@@ -270,6 +273,7 @@ sealed interface TextureDescriptor {
     class SmartTexture(val texture: com.watabou.gltextures.SmartTexture) : TextureDescriptor
     class Pixmap(val pixmap: com.badlogic.gdx.graphics.Pixmap) : TextureDescriptor
     class Icon(val icon: Icons) : TextureDescriptor
+    class HeroClass(val heroClass: com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass, val armorTier: Int) : TextureDescriptor
 
     fun asImage(): Image {
         return when (this) {
@@ -277,6 +281,7 @@ sealed interface TextureDescriptor {
             is SmartTexture -> Image(TextureCache.get(texture))
             is Pixmap -> Image(TextureCache.get(pixmap))
             is Icon -> Icons.get(icon)
+            is HeroClass -> HeroSprite.avatar(heroClass, armorTier)
         }
     }
 
@@ -286,6 +291,7 @@ sealed interface TextureDescriptor {
             is Pixmap -> image.texture(TextureCache.get(pixmap))
             is SmartTexture -> image.texture(TextureCache.get(texture))
             is Icon -> image.copy(Icons.get(icon))
+            is HeroClass -> image.copy(HeroSprite.avatar(heroClass, armorTier))
         }
     }
 }

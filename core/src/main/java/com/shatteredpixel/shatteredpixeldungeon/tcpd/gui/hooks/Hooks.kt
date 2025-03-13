@@ -100,7 +100,7 @@ value class MutableHookRef<T : Any>(private val hook: RawHookRef) {
     /**
      * Get the current value of the hook, or initialize it if it has not been initialized.
      */
-    inline fun getOrInitWith(value: () -> T): T {
+    inline fun getOrInitWith(crossinline value: () -> T): T {
         tryGet().let {
             if (it != null) {
                 return it

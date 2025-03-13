@@ -94,6 +94,15 @@ inline fun <T> Ui.stackJustified(
     ).show(this, block)
 }
 
+inline fun <T> Ui.stackFill(
+    background: NinePatchDescriptor? = null, crossinline block: () -> T
+): InnerResponse<T> {
+    return WithLayout(
+        layout = Layout.StackFill,
+        background = background,
+    ).show(this, block)
+}
+
 inline fun <T> Ui.rightToLeft(
     background: NinePatchDescriptor? = null, crossinline block: () -> T
 ): InnerResponse<T> {

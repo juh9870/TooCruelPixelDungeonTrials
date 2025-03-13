@@ -9,12 +9,12 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.TextureDescript
 import com.watabou.noosa.Image
 
 class UiImage {
-    fun show(ui: Ui, descriptor: TextureDescriptor): WidgetResponse<Image> {
+    fun show(ui: Ui, descriptor: TextureDescriptor, allocatedSize: Vec2?): WidgetResponse<Image> {
         val top = ui.top()
         val id = top.nextAutoId()
         val space = top.layout.nextAvailableSpace(top.style())
         val img = top.painter().drawImage(id, space.min, descriptor)
-        val imageSize = Vec2(img.width.toInt(), img.height.toInt())
+        val imageSize = allocatedSize ?: Vec2(img.width.toInt(), img.height.toInt())
         val allocated = top.allocateSize(imageSize)
 
         val res = if (allocated.size() != imageSize) {
@@ -34,6 +34,6 @@ class UiImage {
     }
 }
 
-fun Ui.image(descriptor: TextureDescriptor): WidgetResponse<Image> {
-    return UiImage().show(this, descriptor)
+fun Ui.image(descriptor: TextureDescriptor, allocatedSize: Vec2? = null): WidgetResponse<Image> {
+    return UiImage().show(this, descriptor, allocatedSize)
 }

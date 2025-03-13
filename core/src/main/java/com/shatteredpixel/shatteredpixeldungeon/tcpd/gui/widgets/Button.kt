@@ -4,6 +4,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Chrome
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Margins
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Pos2
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Rect
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Ui
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiId
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiResponse
@@ -85,20 +86,25 @@ fun Ui.redCheckbox(
 ): InteractiveResponse<Unit> {
     return redButton(margins) {
         val res = activeLabel(text, size)
-        val ui = top();
-        val space = ui.layout.getFullAvailableSpace()
-        val image = ui.painter().drawImage(
-            ui.nextAutoId(), Pos2(0, 0), if (checked) {
-                Icons.CHECKED
-            } else {
-                Icons.UNCHECKED
-            }.descriptor()
-        )
-        image.x = (space.right() - image.width - 1)
-        image.y =
-            ((res.widget.top() + (res.widget.height() - image.height) / 2) + 1)
-        PixelScene.align(image)
+        drawRedCheckbox(checked, res.response.rect)
     }
+}
+
+fun Ui.drawRedCheckbox(checked: Boolean, alignRect: Rect) {
+    val ui = top();
+    val space = ui.layout.getFullAvailableSpace()
+    val image = ui.painter().drawImage(
+        ui.nextAutoId(), Pos2(0, 0), if (checked) {
+            Icons.CHECKED
+        } else {
+            Icons.UNCHECKED
+        }.descriptor()
+    )
+    image.x = (space.right() - image.width - 1)
+    image.y =
+        ((alignRect.top() + (alignRect.height() - image.height) / 2) + 1)
+    PixelScene.align(image)
+
 }
 
 inline fun <T> Ui.redButton(

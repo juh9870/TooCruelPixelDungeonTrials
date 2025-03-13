@@ -32,6 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Journal;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.windows.WndModifiers;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.windows.WndTrials;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ExitButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
@@ -764,13 +765,15 @@ public class HeroSelectScene extends PixelScene {
 //						return;
 //					}
 
-					ShatteredPixelDungeon.scene().addToFront(new WndModifiers(SPDSettings.challenges(), true) {
-						public void onBackPressed() {
-							super.onBackPressed();
-							icon(Icons.get(SPDSettings.challenges().isChallenged() ? Icons.CHALLENGE_COLOR : Icons.CHALLENGE_GREY));
-							updateOptionsColor();
-						}
-					} );
+//					ShatteredPixelDungeon.scene().addToFront(new WndModifiers(SPDSettings.challenges(), true) {
+//						public void onBackPressed() {
+//							super.onBackPressed();
+//							icon(Icons.get(SPDSettings.challenges().isChallenged() ? Icons.CHALLENGE_COLOR : Icons.CHALLENGE_GREY));
+//							updateOptionsColor();
+//						}
+//					} );
+
+					ShatteredPixelDungeon.scene().addToFront(new WndTrials());
 				}
 			};
 			challengeButton.leftJustify = true;

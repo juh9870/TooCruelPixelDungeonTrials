@@ -6,6 +6,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Pos2
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Rect
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Style
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Vec2
+import kotlin.math.ceil
 import kotlin.math.max
 
 abstract class Layout(protected var availableSpace: Rect) {
@@ -105,6 +106,22 @@ abstract class Layout(protected var availableSpace: Rect) {
         }
     }
 
+    open class StackFill(availableSpace: Rect) : Stack(availableSpace) {
+        companion object : LayoutConstructor {
+            override fun construct(availableSpace: Rect): Layout {
+                return StackFill(availableSpace)
+            }
+        }
+
+        override fun allocate(desired: Vec2, style: Style): Rect {
+            return super.allocate(availableSpace.size(), style)
+        }
+
+        override fun childContinued(): LayoutConstructor {
+            return StackFill
+        }
+    }
+
     class VerticalJustified(availableSpace: Rect) : Vertical(availableSpace) {
         companion object : LayoutConstructor {
             override fun construct(availableSpace: Rect): Layout {
@@ -140,12 +157,34 @@ abstract class Layout(protected var availableSpace: Rect) {
         private var nextRow = 0
         private val columnsSum = columns.sum()
 
+        private fun actualSpacing(spacing: Int): Int {
+            if (columns.size < 3) return spacing
+
+            // Evenly distribute the "extra" spacing in between columns
+            val spacingBonus = spacing / (columns.size - 1)
+            // avoid excessive spacing
+            if(spacingBonus > spacing*0.2f) {
+                return spacing
+            }
+            return spacing + spacingBonus
+        }
+
         private fun nextWidth(spacing: Int): Int {
-            return (columns[column] * (availableSpace.width() - spacing * (columns.size - 1)) / columnsSum).toInt()
+            val actualSpacing = actualSpacing(spacing)
+            val unconsumedSpacing = spacing - (actualSpacing - spacing) * (columns.size - 1)
+            var width = (columns[column] * (availableSpace.width() - actualSpacing * (columns.size - 1)) / columnsSum).toInt()
+            // Distribute the remaining space to the first and last columns
+            if(column == 0) {
+                width += (unconsumedSpacing/2f).toInt()
+            } else if(column == columns.size - 1) {
+                width += ceil(unconsumedSpacing / 2f).toInt()
+            }
+            return width
         }
 
         override fun allocate(desired: Vec2, style: Style): Rect {
             val width = nextWidth(style.itemSpacing)
+            val actualSpacing = actualSpacing(style.itemSpacing)
             val rect =
                 Rect.fromSize(cursor, Vec2(width, desired.y)).allocateIntersect(availableSpace)
             nextRow = max(nextRow, rect.bottom())
@@ -153,9 +192,9 @@ abstract class Layout(protected var availableSpace: Rect) {
             column += 1
             if (column >= columns.size) {
                 column = 0
-                cursor = Pos2(availableSpace.min.x, nextRow + style.itemSpacing)
+                cursor = Pos2(availableSpace.min.x, nextRow + actualSpacing)
             } else {
-                cursor = Pos2(cursor.x + width + style.itemSpacing, cursor.y)
+                cursor = Pos2(cursor.x + width + actualSpacing, cursor.y)
             }
             return rect
         }
