@@ -82,6 +82,10 @@ class Ui(private val ctx: Context, availableSpace: Rect, painter: Painter) {
         return withLayout(enabled = enabled, block = block)
     }
 
+    inline fun <T> withId(id: UiId, crossinline block: () -> T): InnerResponse<T> {
+        return withLayout(id = id, block = block)
+    }
+
     fun popLayout(id: UiId): UiResponse {
         val removed = stack.removeLast()
         if (removed.id != id) {

@@ -6,12 +6,8 @@ import com.watabou.noosa.Game
 inline fun <R> Ui.use(crossinline cb: HookState.() -> R): R {
     val id = this.top().id().with("hooks")
 
-    val value = this.ctx().memory.getOrPut(id) {
+    val value = this.ctx().getOrPutMemory(id) {
         HookState()
-    }
-
-    if (value !is HookState) {
-        throw IllegalStateException("Memory value is not a HookState at $id")
     }
 
     return cb(value)

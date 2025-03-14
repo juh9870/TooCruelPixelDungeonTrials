@@ -7,7 +7,9 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.margins
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Margins
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Pos2
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Rect
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Vec2
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiId
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.LRUCache
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock
 import com.watabou.gltextures.SmartTexture
@@ -180,6 +182,7 @@ internal sealed class VisualElement {
                 }
                 image.x = pos.x.toFloat()
                 image.y = pos.y.toFloat()
+                image.scale.set(1f)
                 return image
             }
 
@@ -269,6 +272,8 @@ internal sealed class VisualElement {
     }
 }
 
+private val TextureSizeCache = LRUCache<TextureDescriptor, Vec2>(256)
+
 sealed interface TextureDescriptor {
     class ByName(val name: String) : TextureDescriptor
     class SmartTexture(val texture: com.watabou.gltextures.SmartTexture) : TextureDescriptor
@@ -296,6 +301,13 @@ sealed interface TextureDescriptor {
             is SmartTexture -> image.texture(TextureCache.get(texture))
             is Icon -> image.copy(Icons.get(icon))
             is HeroClass -> image.copy(HeroSprite.avatar(heroClass, armorTier))
+        }
+    }
+
+    fun size(): Vec2 {
+        return TextureSizeCache.getOrPut(this) {
+            val image = asImage()
+            Vec2(image.width.toInt(), image.height.toInt())
         }
     }
 }

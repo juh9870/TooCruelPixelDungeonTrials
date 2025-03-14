@@ -2,6 +2,7 @@ package com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets
 
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Vec2
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.AnimationState
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.useMemo
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Ui
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiResponse
@@ -9,8 +10,8 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.WidgetResponse
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.LRUCache
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock
 import com.watabou.noosa.RenderedText
+import com.watabou.noosa.Visual
 import kotlin.math.ceil
-import kotlin.math.round
 import kotlin.math.roundToInt
 
 class UiText(val text: String, val size: Int, val multiline: Boolean) {
@@ -18,7 +19,7 @@ class UiText(val text: String, val size: Int, val multiline: Boolean) {
         val top = ui.top()
         val space = top.layout.nextAvailableSpace(ui.top().style())
         val id = top.nextAutoId()
-        val text = top.painter().drawText(id, space, text, size, multiline) as RenderedTextBlock
+        val text = top.painter().drawText(id, space, text, size, multiline)
 
         val textSize = Vec2(ceil(text.width()).toInt(), ceil(text.height()).toInt());
         val rect = top.allocateSize(textSize)
@@ -46,14 +47,32 @@ fun Ui.activeLabel(
     multiline: Boolean = false
 ): WidgetResponse<RenderedTextBlock> {
     val res = UiText(text, size, multiline).show(this)
-    if (!top().isEnabled()) {
-        res.widget.alpha(0.3f)
-    }
+    dimInactiveText(res)
     return res
 }
 
+fun Ui.dimInactiveText(res: WidgetResponse<RenderedTextBlock>, active: Boolean? = null) {
+    val top = top()
+    val id = res.response.id.with("labelDimmer")
+    val enabled = active ?: top.isEnabled()
+    val anim = ctx().getOrPutMemory(id) { AnimationState(enabled) }
+    res.widget.alpha(anim.animate(enabled, top.style().interactionAnimationDuration) { 0.3f + 0.7f * it })
+}
+
+fun<T:Visual> Ui.dimInactiveVisual(res: WidgetResponse<T>, active: Boolean? = null) {
+    val top = top()
+    val id = res.response.id.with("labelDimmer")
+    val enabled = active ?: top.isEnabled()
+    val anim = ctx().getOrPutMemory(id) { AnimationState(enabled) }
+    res.widget.alpha(anim.animate(enabled, top.style().interactionAnimationDuration) { 0.3f + 0.7f * it })
+}
+
 @Suppress("NAME_SHADOWING")
-fun Ui.shrinkToFitLabel(text: String, defaultSize: Int, height: Int? = null): WidgetResponse<RenderedTextBlock> {
+fun Ui.shrinkToFitLabel(
+    text: String,
+    defaultSize: Int,
+    height: Int? = null
+): WidgetResponse<RenderedTextBlock> {
     val availableWidth = top().nextAvailableSpace().width()
     val size by useMemo(Pair(text, availableWidth)) {
         var size = defaultSize

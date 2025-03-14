@@ -9,12 +9,13 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.PaintCache
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.Painter
 import com.watabou.noosa.Group
 
+@OptIn(DirectMemoryAccess::class)
 class Context(val rootGroup: Group = Group()) {
     val paintCache: PaintCache = PaintCache()
     var mode: ContextMode = ContextMode.DYNAMIC
 
-    @PublishedApi
-    internal val memory: TwoFrameMap<UiId, Any> = TwoFrameMap()
+    @DirectMemoryAccess
+    val memory: TwoFrameMap<UiId, Any> = TwoFrameMap()
 
     /**
      * Call this function once to create static UI.
@@ -42,6 +43,15 @@ class Context(val rootGroup: Group = Group()) {
         }
 
         return value as T?
+    }
+
+    inline fun <reified T : Any> getOrPutMemory(id: UiId, crossinline defaultValue: ()->T): T {
+        val value = memory.getOrPut(id, defaultValue);
+        if (value !is T) {
+            throw IllegalStateException("Memory value type mismatch: expected ${T::class}, got ${value::class}. Id: $id")
+        }
+
+        return value
     }
 
     fun destroy() {
@@ -80,6 +90,11 @@ enum class ContextMode {
     STATIC,
     DYNAMIC
 }
+
+@RequiresOptIn(message = "Direct memory access is discouraged", level = RequiresOptIn.Level.ERROR)
+@Retention(AnnotationRetention.BINARY)
+@Target(AnnotationTarget.PROPERTY)
+annotation class DirectMemoryAccess
 
 class TwoFrameMap<K, V> {
     private var curr: MutableMap<K, V> = mutableMapOf()

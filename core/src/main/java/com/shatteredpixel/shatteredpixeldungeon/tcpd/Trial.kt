@@ -170,6 +170,29 @@ class TrialGroup() : Bundlable {
         wantNotify = true
     }
 
+    fun notificationShown(){
+        if(wantNotify) {
+            wantNotify = false
+            Trials.save()
+        }
+    }
+
+    fun nameOrTrimmedUrl(): String {
+        return name.ifBlank {
+            var url = url
+            if (url.startsWith("https://")) {
+                url = url.substring(8)
+            } else if (url.startsWith("http://")) {
+                url = url.substring(7)
+            }
+            if (url.length > 16) {
+                "${url.substring(0, 8)}[...]${url.substring(url.length - 8)}"
+            } else {
+                url
+            }
+        }
+    }
+
     override fun restoreFromBundle(bundle: Bundle) {
         name = bundle.getString(NAME)
         url = bundle.getString(URL)
@@ -249,6 +272,11 @@ class Trials : Bundlable {
 
     fun getGroups(): List<TrialGroup> {
         return groups
+    }
+
+    fun removeGroup(group: TrialGroup) {
+        groups.remove(group)
+        save()
     }
 
     override fun restoreFromBundle(bundle: Bundle) {

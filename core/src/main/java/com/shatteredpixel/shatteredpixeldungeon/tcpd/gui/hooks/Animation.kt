@@ -5,30 +5,52 @@ import com.watabou.noosa.Game
 import com.watabou.utils.GameMath
 import kotlin.math.sign
 
-class AnimationState(var state: Boolean, var progress: Float)
+class AnimationState(startingState: Boolean) {
+    var state: Boolean = startingState
+    var progress: Float = targetForState(startingState)
+
+    inline fun<T> animate(
+        targetState: Boolean,
+        durationSeconds: Float,
+        crossinline animation: (progress: Float) -> T):T {
+        val target = targetForState(targetState)
+
+        var progress = this.progress
+        if(progress != target) {
+            val step = (1f / durationSeconds) * Game.elapsed * sign(target - progress)
+
+            progress = GameMath.gate(0f, progress + step, 1f)
+        }
+
+        if (progress == target) {
+            this.state = targetState
+        }
+
+        this.progress = progress
+        return animation(progress)
+    }
+
+    fun done(targetState: Boolean): Boolean {
+        return progress == targetForState(targetState)
+    }
+
+    @Suppress("NOTHING_TO_INLINE")
+    @PublishedApi
+    internal inline fun targetForState(targetState: Boolean): Float {
+        return if (targetState) 1f else 0f
+    }
+}
 
 inline fun <reified T : Any> Ui.useAnimation(
     tracker: Any,
     state: Boolean,
     durationSeconds: Float,
     crossinline animation: (progress: Float) -> T
-): Pair<T, Boolean> {
+): T {
     return use {
-        val target = if (state) 1f else 0f
+        val hook = get<AnimationState>(tracker).getOrInitWith { AnimationState(state) }
 
-        val hook = get<AnimationState>(tracker).getOrInitWith { AnimationState(state, target) }
-
-        val progress = hook.progress
-        if (progress == target) {
-            hook.state = state
-            return@use Pair(animation(progress), state)
-        }
-
-        val step = (1f / durationSeconds) * Game.elapsed * sign(target - progress)
-
-        hook.progress = GameMath.gate(0f, progress + step, 1f)
-
-        Pair(animation(hook.progress), hook.state)
+        hook.animate(state, durationSeconds, animation)
     }
 }
 
