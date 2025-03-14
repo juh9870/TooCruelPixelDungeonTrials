@@ -144,7 +144,7 @@ class WndTrials : TcpdWindow() {
     }
 }
 
-val GROUPS_LIST_BG_KEY by lazy {
+private val GROUPS_LIST_BG_KEY by lazy {
     val key = object {}
 
     val tx = TextureCache.create(key, 1, 2)
@@ -209,6 +209,14 @@ fun Ui.updateBtn() {
     }
 }
 
+private val GRADIENT = intArrayOf(
+    0xFF6A675Cu.toInt(),
+    0xFF807C6Cu.toInt(),
+    0xFF97917Du.toInt(),
+    0xFFAEA68Eu.toInt(),
+    0xFFC5BC9Fu.toInt(),
+)
+
 fun Ui.trialGroupButton(group: TrialGroup) {
     rightToLeft {
         if (group.updateError != null) {
@@ -224,11 +232,7 @@ fun Ui.trialGroupButton(group: TrialGroup) {
             withEnabled(!group.isUpdating) {
                 redButton(
                     margins = RED_BUTTON_MARGINS.copy(top = 4),
-                    background = NinePatchDescriptor.Gradient.colors(
-                        0xFF6A675CU.toInt(),
-                        0x7F6A675CU.toInt(),
-                        0x006A675CU.toInt()
-                    )
+                    background = NinePatchDescriptor.Gradient(GRADIENT)
                 ) {
                     val label = shrinkToFitLabel(group.name, 9)
                     if (group.wantNotify) {
@@ -259,7 +263,7 @@ class WndTrialsGroup(val group: TrialGroup) : TcpdWindow() {
     }
 
     override fun Ui.drawUi() {
-        val name = if (group.name.isBlank()) {
+        val name = group.name.ifBlank {
             var url = group.url
             if (url.startsWith("https://")) {
                 url = url.substring(8)
@@ -271,8 +275,6 @@ class WndTrialsGroup(val group: TrialGroup) : TcpdWindow() {
             } else {
                 url
             }
-        } else {
-            group.name
         }
         verticalJustified {
             verticalJustified {

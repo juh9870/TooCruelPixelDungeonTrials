@@ -1,15 +1,13 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter
 
 import com.shatteredpixel.shatteredpixeldungeon.Chrome
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.margins
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Margins
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Pos2
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Rect
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiId
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.margins
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.LRUCache
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock
 import com.watabou.gltextures.SmartTexture
@@ -302,8 +300,6 @@ sealed interface TextureDescriptor {
     }
 }
 
-private val NINE_PATCH_MARGINS_CACHE: MutableMap<NinePatchDescriptor, Margins> = LRUCache(256)
-
 sealed interface NinePatchDescriptor {
     data class Chrome(val type: com.shatteredpixel.shatteredpixeldungeon.Chrome.Type) :
         NinePatchDescriptor
@@ -334,16 +330,22 @@ sealed interface NinePatchDescriptor {
             is Chrome -> com.shatteredpixel.shatteredpixeldungeon.Chrome.get(type)
             is FlatColor -> NinePatch(TextureCache.createSolid(color.toInt()), 0)
             is Gradient -> NinePatch(TextureCache.createGradient(*colors), 0)
-            is TextureId -> NinePatch(TextureCache.get(key), margins.left, margins.top, margins.right, margins.bottom)
+            is TextureId -> NinePatch(
+                TextureCache.get(key),
+                margins.left,
+                margins.top,
+                margins.right,
+                margins.bottom
+            )
         }
     }
 
     fun margins(): Margins {
-        if (this is TextureId) {
-            return margins
-        }
-        return NINE_PATCH_MARGINS_CACHE.getOrPut(this) {
-            get().margins()
+        return when (this) {
+            is Chrome -> type.margins()
+            is FlatColor -> Margins.same(0)
+            is Gradient -> Margins.same(0)
+            is TextureId -> margins
         }
     }
 }
