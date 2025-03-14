@@ -1,0 +1,26 @@
+{
+  "name": "Extreme",
+  "version": 1,
+  "trials": [
+    {
+      "name": "Crystal Crusher",
+      "modifiers": "Cs3Ub"
+    },
+    {
+      "name": "The Challenger",
+      "modifiers": "kKnbtqM"
+    },
+    {
+      "name": "Extinction Event",
+      "modifiers": "12MbsGy5"
+    },
+    {
+      "name": "The Holy City",
+      "modifiers": "8LLYxJs"
+    },
+    {
+      "name": "Teh Chariot",
+      "modifiers": "JipCAP32X"
+    }
+  ]
+}

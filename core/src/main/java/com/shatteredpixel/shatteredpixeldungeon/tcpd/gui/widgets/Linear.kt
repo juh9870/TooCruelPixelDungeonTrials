@@ -114,10 +114,11 @@ inline fun <T> Ui.rightToLeft(
 
 inline fun <T> Ui.columns(
     sizes: FloatArray,
+    spacing: Int? = null,
     background: NinePatchDescriptor? = null, crossinline block: () -> T
 ): InnerResponse<T> {
     return WithLayout(
-        layout = Layout.ColumnsLayout.constructor(sizes),
+        layout = Layout.ColumnsLayout.constructor(sizes, spacing ?: top().style().itemSpacing),
         background = background,
     ).show(this, block)
 }

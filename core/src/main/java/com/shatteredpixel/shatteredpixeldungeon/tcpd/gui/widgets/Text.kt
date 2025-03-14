@@ -6,10 +6,12 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.useMemo
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Ui
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiResponse
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.WidgetResponse
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.LRUCache
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock
 import com.watabou.noosa.RenderedText
 import kotlin.math.ceil
 import kotlin.math.round
+import kotlin.math.roundToInt
 
 class UiText(val text: String, val size: Int, val multiline: Boolean) {
     fun show(ui: Ui): WidgetResponse<RenderedTextBlock> {
@@ -81,13 +83,7 @@ fun Ui.shrinkToFitLabel(text: String, defaultSize: Int, height: Int? = null): Wi
     }.inner
 }
 
-class LRUCache<K, V>(private val capacity: Int) : LinkedHashMap<K, V>(capacity, 0.75f, true) {
-    override fun removeEldestEntry(eldest: Map.Entry<K, V>?): Boolean {
-        return size > capacity
-    }
-}
-
-private val MEASURED_TEXT: LRUCache<Pair<String, Int>, Float> = LRUCache(256)
+private val MEASURED_TEXT: MutableMap<Pair<String, Int>, Float> = LRUCache(256)
 
 fun measureTextWidth(text: String, size: Int): Float {
     val key = Pair(text, size)
@@ -97,5 +93,5 @@ fun measureTextWidth(text: String, size: Int): Float {
 }
 
 fun textHeight(size: Int): Int {
-    return round(size * 0.75f).toInt()
+    return (size * 0.75f).roundToInt()
 }

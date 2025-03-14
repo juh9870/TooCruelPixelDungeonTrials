@@ -1,0 +1,41 @@
+{
+  "name": "Hard",
+  "version": 1,
+  "trials": [
+    {
+      "name": "Apocalypse",
+      "modifiers": "umXeryykK"
+    },
+    {
+      "name": "Wall Breakers",
+      "modifiers": "4z4PcwE1"
+    },
+    {
+      "name": "Operation Bloodmoon",
+      "modifiers": "CyHRH"
+    },
+    {
+      "name": "The Dark Ages",
+      "modifiers": "TB8VKB"
+    },
+    {
+      "name": "Roarborers",
+      "modifiers": "111pScBR"
+    },
+    {
+      "name": "The Unblessed Machine",
+      "modifiers": "pqWQUBBH",
+      "locked_class": "DUELIST"
+    },
+    {
+      "name": "Bastard of Shadows",
+      "modifiers": "14e3dmGk",
+      "locked_class": "ROGUE"
+    },
+    {
+      "name": "Academy Dropout",
+      "modifiers": "zmM9z8X",
+      "locked_class": "MAGE"
+    }
+  ]
+}

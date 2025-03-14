@@ -9,6 +9,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Ui
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiId
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiResponse
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.ComponentConstructor
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.NinePatchDescriptor
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.Painter
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.TextureDescriptor
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.descriptor
@@ -71,9 +72,10 @@ fun Ui.iconButton(image: TextureDescriptor): InteractiveResponse<Unit> {
 fun Ui.redButton(
     text: String,
     size: Int = 9,
-    margins: Margins = RED_BUTTON_MARGINS
+    margins: Margins = RED_BUTTON_MARGINS,
+    background: NinePatchDescriptor = Chrome.Type.RED_BUTTON.descriptor()
 ): InteractiveResponse<Unit> {
-    return redButton(margins) {
+    return redButton(margins, background) {
         activeLabel(text, size)
     }
 }
@@ -109,19 +111,20 @@ fun Ui.drawRedCheckbox(checked: Boolean, alignRect: Rect) {
 
 inline fun <T> Ui.redButton(
     margins: Margins = RED_BUTTON_MARGINS,
+    background: NinePatchDescriptor = Chrome.Type.RED_BUTTON.descriptor(),
     crossinline content: (interaction: Interaction) -> T
 ): InteractiveResponse<T> {
     return customButton { interaction ->
-        withRedButtonBackground(this, interaction.isPointerDown, margins) {
+        withRedButtonBackground(this, interaction.isPointerDown, margins, background) {
             content(interaction)
         }
     }
 }
 
 inline fun <T> withRedButtonBackground(
-    ui: Ui, held: Boolean, margins: Margins, crossinline content: () -> T
+    ui: Ui, held: Boolean, margins: Margins, background: NinePatchDescriptor = Chrome.Type.RED_BUTTON.descriptor(), crossinline content: () -> T
 ): T {
-    return ui.vertical(background = Chrome.Type.RED_BUTTON.descriptor()) {
+    return ui.vertical(background = background) {
         ui.margins(margins) {
             val bg = (ui.top().painter().getGroup() as NinePatchComponent).ninePatch
             if (bg != null) {

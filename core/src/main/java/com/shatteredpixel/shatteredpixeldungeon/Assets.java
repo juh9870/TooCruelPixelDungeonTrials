@@ -33,6 +33,10 @@ public class Assets {
 		public static class Messages {
 			public static final String TCPD  = "messages/tcpd/tcpd";
 		}
+
+		public static class Trials {
+			public static final String BASEPATH  = "trials/";
+		}
 	}
 
 	public static class Effects {

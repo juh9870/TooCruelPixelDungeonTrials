@@ -4,6 +4,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Margins
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Vec2
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.useState
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Ui
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.NinePatchDescriptor
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.assertEq
 import kotlin.math.ceil
 import kotlin.math.max
@@ -11,20 +12,36 @@ import kotlin.math.min
 
 const val PAGINATED_HEADER_HEIGHT = 11
 
-class PaginatedList(val count: Int, val itemHeight: Int) {
-    inline fun show(ui: Ui, crossinline showItem: (Int) -> Unit) {
+class PaginatedList(
+    val count: Int, val itemHeight: Int,
+    val bodyBackground: NinePatchDescriptor? = null,
+    val bodyMargins: Margins = Margins.ZERO
+) {
+    inline fun show(
+        ui: Ui,
+        crossinline showItem: (Int) -> Unit
+    ) {
         ui.verticalJustified {
             val spacing = ui.top().style().itemSpacing
             val available = ui.top().nextAvailableSpace()
-            val requiredTotalHeight = count * itemHeight + (count - 1) * spacing
+
+            val marginVertical = (bodyBackground?.margins()?.size()?.y ?: 0) + bodyMargins.size().y
+
+            val requiredTotalHeight = count * itemHeight + (count - 1) * spacing + marginVertical
             if (available.height() >= requiredTotalHeight) {
-                for (i in 0 until count) {
-                    showItem(i)
+                ui.verticalJustified(background = bodyBackground) {
+                    ui.margins(bodyMargins) {
+                        for (i in 0 until count) {
+                            val res = ui.verticalJustified { showItem(i) }
+                            assertEq(res.response.rect.height(), itemHeight)
+                        }
+                    }
                 }
                 return@verticalJustified
             }
 
-            val pageAvailableHeight = available.height() - PAGINATED_HEADER_HEIGHT - spacing
+            val pageAvailableHeight =
+                available.height() - marginVertical - PAGINATED_HEADER_HEIGHT - spacing
             val itemsPerPage = (pageAvailableHeight + spacing) / (itemHeight + spacing)
             val pagesCount = ceil(count.toFloat() / itemsPerPage).toInt()
 
@@ -69,14 +86,19 @@ class PaginatedList(val count: Int, val itemHeight: Int) {
                 (currentPage + 1) * itemsPerPage,
                 count
             )
-            for (i in currentPage * itemsPerPage until lastItem) {
-                val res = ui.verticalJustified { showItem(i) }
-                assertEq(res.response.rect.height(), itemHeight)
-            }
 
-            if (currentPage == pagesCount - 1) {
-                for (i in lastItem until pagesCount * itemsPerPage) {
-                    ui.spacer(Vec2(0, itemHeight))
+            ui.verticalJustified(background = bodyBackground) {
+                ui.margins(bodyMargins) {
+                    for (i in currentPage * itemsPerPage until lastItem) {
+                        val res = ui.verticalJustified { showItem(i) }
+                        assertEq(res.response.rect.height(), itemHeight)
+                    }
+
+                    if (currentPage == pagesCount - 1) {
+                        for (i in lastItem until pagesCount * itemsPerPage) {
+                            ui.spacer(Vec2(0, itemHeight))
+                        }
+                    }
                 }
             }
         }

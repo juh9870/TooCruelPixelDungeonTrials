@@ -1,13 +1,15 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter
 
 import com.shatteredpixel.shatteredpixeldungeon.Chrome
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Margins
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Pos2
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Rect
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiId
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.margins
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.LRUCache
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock
 import com.watabou.gltextures.SmartTexture
@@ -144,7 +146,8 @@ internal sealed class VisualElement {
                     null
                 } ?: ColorBlock(rect.width().toFloat(), rect.height().toFloat(), color)
 
-                block.origin.set(rect.min.x.toFloat(), rect.min.y.toFloat())
+                block.x = rect.min.x.toFloat()
+                block.y = rect.min.y.toFloat()
                 block.size(rect.width().toFloat(), rect.height().toFloat())
                 return block
             }
@@ -273,7 +276,10 @@ sealed interface TextureDescriptor {
     class SmartTexture(val texture: com.watabou.gltextures.SmartTexture) : TextureDescriptor
     class Pixmap(val pixmap: com.badlogic.gdx.graphics.Pixmap) : TextureDescriptor
     class Icon(val icon: Icons) : TextureDescriptor
-    class HeroClass(val heroClass: com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass, val armorTier: Int) : TextureDescriptor
+    class HeroClass(
+        val heroClass: com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass,
+        val armorTier: Int
+    ) : TextureDescriptor
 
     fun asImage(): Image {
         return when (this) {
@@ -296,13 +302,48 @@ sealed interface TextureDescriptor {
     }
 }
 
+private val NINE_PATCH_MARGINS_CACHE: MutableMap<NinePatchDescriptor, Margins> = LRUCache(256)
+
 sealed interface NinePatchDescriptor {
     data class Chrome(val type: com.shatteredpixel.shatteredpixeldungeon.Chrome.Type) :
         NinePatchDescriptor
 
+    data class FlatColor(val color: UInt) : NinePatchDescriptor
+    data class TextureId(val key: Any, val margins: Margins) : NinePatchDescriptor
+    data class Gradient(val colors: IntArray) : NinePatchDescriptor {
+        companion object {
+            fun colors(vararg colors: Int): Gradient {
+                return Gradient(colors)
+            }
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Gradient) return false
+
+            return colors.contentEquals(other.colors)
+        }
+
+        override fun hashCode(): Int {
+            return colors.contentHashCode()
+        }
+    }
+
     fun get(): NinePatch {
         return when (this) {
             is Chrome -> com.shatteredpixel.shatteredpixeldungeon.Chrome.get(type)
+            is FlatColor -> NinePatch(TextureCache.createSolid(color.toInt()), 0)
+            is Gradient -> NinePatch(TextureCache.createGradient(*colors), 0)
+            is TextureId -> NinePatch(TextureCache.get(key), margins.left, margins.top, margins.right, margins.bottom)
+        }
+    }
+
+    fun margins(): Margins {
+        if (this is TextureId) {
+            return margins
+        }
+        return NINE_PATCH_MARGINS_CACHE.getOrPut(this) {
+            get().margins()
         }
     }
 }

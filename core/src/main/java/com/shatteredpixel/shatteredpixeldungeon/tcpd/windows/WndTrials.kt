@@ -1,5 +1,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.windows
 
+import com.shatteredpixel.shatteredpixeldungeon.Chrome
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene
@@ -13,9 +14,11 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.LoopingState
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.useMemo
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.useState
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Ui
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.NinePatchDescriptor
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.TextureDescriptor
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.descriptor
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.PaginatedList
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.RED_BUTTON_MARGINS
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.activeLabel
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.columns
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.drawRedCheckbox
@@ -27,12 +30,15 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.margins
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.redButton
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.rightToLeft
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.shrinkToFitLabel
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.spacer
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.verticalJustified
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.easeOutBack
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndError
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndTextInput
+import com.watabou.gltextures.TextureCache
+import com.watabou.glwrap.Texture
 import com.watabou.noosa.Game
 import com.watabou.utils.ColorMath
 import java.net.MalformedURLException
@@ -103,7 +109,9 @@ class WndTrials : TcpdWindow() {
                             } catch (e: MalformedURLException) {
                                 ShatteredPixelDungeon.scene().add(
                                     WndError(
-                                        Messages.get(WndTrials::class.java, "bad_url", e.message)
+                                        Messages.get(
+                                            WndTrials::class.java, "bad_url", e.message
+                                        )
                                     )
                                 )
                                 return
@@ -117,59 +125,86 @@ class WndTrials : TcpdWindow() {
                 }
             }
 
-            var doASpin by useState(Unit) { false }
-            val updatingCount = Trials.load().getGroups().count { it.isUpdating }
-            val spinner by useMemo(Unit) { LoopingState() }
-            val actualUpdating = doASpin || updatingCount > 0
-            val rotProgress = spinner.animate(actualUpdating, 1f, 0.5f) { easeOutBack(it) }
-            val visualUpdating = actualUpdating || (spinner.active() && !spinner.paused())
-            withEnabled(!visualUpdating) {
-                redButton(
-                    margins = Margins.only(left = 3, right = 1)
-                ) {
-                    rightToLeft {
-                        doASpin = false
-                        val img = image(Icons.CHANGES.descriptor())
+            updateBtn()
 
-                        val flip = spinner.repeats % 2 == 0
-                        img.widget.angle = rotProgress * 180 + if (flip) 180 else 0
-
-                        img.widget.origin.set(img.widget.width / 2, img.widget.height / 2)
-
-                        verticalJustified {
-                            val totalSize = Trials.load().getGroups().size
-                            val alreadyUpdated = totalSize - updatingCount
-                            val text = shrinkToFitLabel(
-                                if (visualUpdating) Messages.get(
-                                    WndTrials::class.java,
-                                    "update_in_progress",
-                                    alreadyUpdated,
-                                    totalSize
-                                )
-                                else Messages.get(WndTrials::class.java, "update"),
-                                9,
-                                img.response.rect.height()
-                            )
-
-                            if (!top().isEnabled()) {
-                                text.widget.alpha(0.3f)
-                            }
-                        }
-                    }
-                }.onClick {
-                    doASpin = true
-                    Trials.checkForUpdates()
-                }
-            }
             val trials = Trials.load()
             val sortedGroups = trials.getGroups().sortedWith(compareBy({
                 it.updateError == null
             }, {
                 !it.wantNotify
             }))
-            PaginatedList(sortedGroups.size, 17).show(this) { i ->
+            PaginatedList(
+                sortedGroups.size, 14, bodyBackground = NinePatchDescriptor.TextureId(
+                    GROUPS_LIST_BG_KEY, Margins.only(top = 1)
+                ), bodyMargins = Margins.only(top = 2, bottom = 2)
+            ).show(this) { i ->
                 trialGroupButton(sortedGroups[i])
             }
+        }
+    }
+}
+
+val GROUPS_LIST_BG_KEY by lazy {
+    val key = object {}
+
+    val tx = TextureCache.create(key, 1, 2)
+
+    tx.filter(Texture.NEAREST, Texture.NEAREST)
+    tx.wrap(Texture.CLAMP, Texture.CLAMP)
+    val pm = tx.bitmap
+
+    // RGBA format here
+    pm.drawPixel(0, 0, 0X000000FFu.toInt())
+    pm.drawPixel(0, 1, 0XC5BC9FFFu.toInt())
+
+    return@lazy key
+}
+
+fun Ui.updateBtn() {
+    val trials = Trials.load()
+    var doASpin by useState(Unit) { false }
+    val updatingCount = trials.getGroups().count { it.isUpdating }
+    val spinner by useMemo(Unit) { LoopingState() }
+    val actualUpdating = doASpin || updatingCount > 0
+    val rotProgress = spinner.animate(actualUpdating, 1f, 0.5f) { easeOutBack(it) }
+    val visualUpdating = actualUpdating || (spinner.active() && !spinner.paused())
+    withEnabled(!visualUpdating) {
+        redButton(
+            margins = Margins.only(left = 3, right = 1),
+            background = Chrome.Type.RED_BUTTON.descriptor()
+        ) {
+            rightToLeft {
+                doASpin = false
+                val img = image(Icons.CHANGES.descriptor())
+
+                val flip = spinner.repeats % 2 == 0
+                img.widget.angle = rotProgress * 180 + if (flip) 180 else 0
+
+                img.widget.origin.set(img.widget.width / 2, img.widget.height / 2)
+
+                verticalJustified {
+                    val totalSize = trials.getGroups().size
+                    val alreadyUpdated = totalSize - updatingCount
+                    val text = shrinkToFitLabel(
+                        if (visualUpdating) Messages.get(
+                            WndTrials::class.java,
+                            "update_in_progress",
+                            alreadyUpdated,
+                            totalSize
+                        )
+                        else Messages.get(WndTrials::class.java, "update"),
+                        9,
+                        img.response.rect.height()
+                    )
+
+                    if (!top().isEnabled()) {
+                        text.widget.alpha(0.3f)
+                    }
+                }
+            }
+        }.onClick {
+            doASpin = true
+            Trials.checkForUpdates()
         }
     }
 }
@@ -182,10 +217,19 @@ fun Ui.trialGroupButton(group: TrialGroup) {
                     WndError(group.updateError!!)
                 )
             }
+        } else {
+            spacer(Vec2(14, 14))
         }
         verticalJustified {
             withEnabled(!group.isUpdating) {
-                redButton {
+                redButton(
+                    margins = RED_BUTTON_MARGINS.copy(top = 4),
+                    background = NinePatchDescriptor.Gradient.colors(
+                        0xFF6A675CU.toInt(),
+                        0x7F6A675CU.toInt(),
+                        0x006A675CU.toInt()
+                    )
+                ) {
                     val label = shrinkToFitLabel(group.name, 9)
                     if (group.wantNotify) {
                         label.widget.hardlight(

@@ -2,6 +2,7 @@ package com.shatteredpixel.shatteredpixeldungeon.tcpd
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Net
+import com.shatteredpixel.shatteredpixeldungeon.Assets
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
@@ -135,21 +136,38 @@ class TrialGroup() : Bundlable {
     var wantNotify = false
     var isUpdating = false
     var updateError: String? = null
-    var updatedAt: Long = 0
 
     constructor(
-        name: String, updatedInVersion: Int, internalId: Int?, vararg trials: Trial
-    ) : this(
-        name, updatedInVersion, internalId, trials.toList()
-    )
-
-    constructor(
-        name: String, version: Int, internalId: Int?, trials: List<Trial>
+        name: String, version: Int, trials: List<Trial> = listOf()
     ) : this() {
         this.name = name
         this.version = version
         this.trials = trials
-        this.internalId = internalId
+    }
+
+    fun compareUpdate(other: TrialGroup): Boolean {
+        if (other.version <= version) return false
+        trials = other.trials
+        wantNotify = true
+        if (name.isBlank()) {
+            name = other.name
+        }
+        markUpdated()
+        return true
+    }
+
+    fun copyData(): TrialGroup {
+        val g = TrialGroup()
+        g.name = name
+        g.url = url
+        g.trials = trials
+        g.version = version
+        g.internalId = internalId
+        return g
+    }
+
+    fun markUpdated() {
+        wantNotify = true
     }
 
     override fun restoreFromBundle(bundle: Bundle) {
@@ -165,8 +183,11 @@ class TrialGroup() : Bundlable {
         }
         this.trials = trials
         this.version = bundle.getInt(VERSION)
-        if (this.version == 0) {
-            this.version = Game.versionCode
+        if(bundle.contains(INTERNAL_ID)) {
+            internalId = bundle.getInt(INTERNAL_ID)
+        }
+        if(bundle.contains(WANT_NOTIFY)) {
+            wantNotify = bundle.getBoolean(WANT_NOTIFY)
         }
     }
 
@@ -180,192 +201,46 @@ class TrialGroup() : Bundlable {
         }
         bundle.put(TRIALS, trialsBundles)
         bundle.put(VERSION, version)
+        if (internalId != null) bundle.put(INTERNAL_ID, internalId!!)
+        if (wantNotify) bundle.put(WANT_NOTIFY, true)
     }
 
     companion object {
         private const val TRIALS = "trials"
         private const val NAME = "name"
         private const val URL = "url"
+        private const val INTERNAL_ID = "internal_id"
         private const val VERSION = "version"
+        private const val WANT_NOTIFY = "want_notify"
+
+        val DEFAULT_GROUPS: List<TrialGroup> = run {
+            val groups = mutableListOf<TrialGroup>()
+            val names = mapOf(1 to "normal.json", 2 to "hard.json", 3 to "extreme.json")
+            val url =
+                "https://raw.githubusercontent.com/juh9870/TooCruelPixelDungeonTrials/refs/heads/trials/core/src/main/assets/trials/"
+            for ((id, name) in names) {
+                val file = Gdx.files.internal(Assets.TCPD.Trials.BASEPATH + name)
+                val bundle = Bundle.read(file.read())
+                val group = fromNetworkBundle(bundle)
+                group.url = url + name
+                group.internalId = id
+                groups.add(group)
+            }
+            groups
+        }
 
         fun fromNetworkBundle(bundle: Bundle): TrialGroup {
             val name = bundle.getString(NAME)
             var version = bundle.getInt(VERSION)
-            if(version < 0) version = 0
+            if (version < 0) version = 0
             val trials = bundle.getBundleArray(TRIALS).map { trial ->
                 Trial.fromNetworkBundle(trial)
             }
 
             return TrialGroup(
-                name = name,
-                version = version,
-                internalId = null,
-                trials = trials
+                name = name, version = version, trials = trials
             )
         }
-
-        val BUILT_IN = arrayOf(
-            TrialGroup(
-                "Normal",
-                843,
-                1,
-                Trial("Tier List", null, Modifier.RETIERED, Modifier.STRONGER_BOSSES),
-                Trial("Bloodbath", HeroClass.WARRIOR, Modifier.BLOODBAG, Modifier.ARROWHEAD),
-                Trial(
-                    "Great Faith", HeroClass.CLERIC, Modifier.FAITH_ARMOR, Modifier.PATRON_SAINTS
-                ),
-                Trial(
-                    "Withered Garden",
-                    HeroClass.HUNTRESS,
-                    Modifier.BARREN_LAND,
-                    Modifier.CARDINAL_DISABILITY
-                ),
-                Trial("Champion's Path", null, Modifier.CHAMPION_ENEMIES, Modifier.STRONGER_BOSSES),
-                Trial(
-                    "Downgrade",
-                    null,
-                    Modifier.RETIERED,
-                    Modifier.UNTIERED,
-                    Modifier.FORBIDDEN_RUNES
-                ),
-                Trial("Amethyst", null, Modifier.CRYSTAL_BLOOD, Modifier.CRYSTAL_SHELTER),
-                Trial(
-                    "Clumsiness Unforgiven",
-                    null,
-                    Modifier.ROTTEN_LUCK,
-                    Modifier.PREPARED_ENEMIES,
-                    Modifier.BARRIER_BREAKER,
-                    Modifier.SLIDING
-                ),
-                Trial(
-                    "Minefield",
-                    null,
-                    Modifier.EXTREME_CAUTION,
-                    Modifier.REPEATER,
-                ),
-                Trial(
-                    "Toxic Spillage",
-                    null,
-                    Modifier.TOXIC_WATER,
-                    Modifier.INTOXICATION,
-                ),
-                Trial(
-                    "Unarmored Statue",
-                    null,
-                    Modifier.SECOND_TRY,
-                    Modifier.FAITH_ARMOR,
-                    Modifier.ON_DIET,
-                    Modifier.CERTAINTY_OF_STEEL,
-                ),
-            ), TrialGroup(
-                "Hard",
-                843,
-                2,
-                Trial(
-                    "Apocalypse",
-                    null,
-                    Modifier.BARREN_LAND,
-                    Modifier.MUTAGEN,
-                    Modifier.SWARM_INTELLIGENCE,
-                    Modifier.INSOMNIA,
-                ),
-                Trial("Wall Breakers", null, Modifier.MOLES, Modifier.SWARM_INTELLIGENCE),
-                Trial(
-                    "Operation Bloodmoon",
-                    null,
-                    Modifier.SWARM_INTELLIGENCE,
-                    Modifier.HORDE,
-                    Modifier.MUTAGEN,
-                    Modifier.EVOLUTION,
-                    Modifier.REVENGE,
-                    Modifier.REVENGE_FURY
-                ),
-                Trial(
-                    "The Dark Ages",
-                    null,
-                    Modifier.DARKNESS,
-                    Modifier.BLINDNESS,
-                    Modifier.PLAGUE,
-                    Modifier.TOXIC_WATER
-                ),
-                Trial("Roarborers", null, Modifier.INSOMNIA, Modifier.MOLES, Modifier.REVENGE),
-                Trial(
-                    "The Unblessed Machine",
-                    HeroClass.DUELIST,
-                    Modifier.FAITH_ARMOR,
-                    Modifier.PHARMACOPHOBIA,
-                    Modifier.PREPARED_ENEMIES,
-                    Modifier.CERTAINTY_OF_STEEL,
-                    Modifier.BARRIER_BREAKER,
-                    Modifier.HORDE,
-                    Modifier.HEAD_START,
-                ),
-                Trial(
-                    "Bastard of Shadows",
-                    HeroClass.ROGUE,
-                    Modifier.RACING_THE_DEATH,
-                    Modifier.BLINDNESS,
-                    Modifier.DARKNESS,
-                    Modifier.ARROWHEAD,
-                    Modifier.LOFT,
-                    Modifier.UNTIERED,
-                ),
-                Trial(
-                    "Academy Dropout",
-                    HeroClass.MAGE,
-                    Modifier.PANDEMONIUM,
-                    Modifier.UNSTABLE_ACCESSORIES,
-                    Modifier.UNTIERED,
-                    Modifier.PARADOX_LEVELGEN,
-                    Modifier.FORBIDDEN_RUNES,
-                ),
-            ), TrialGroup(
-                "Extreme", 843, 3, Trial(
-                    "Crystal Crusher",
-                    null,
-                    Modifier.ARROWHEAD,
-                    Modifier.THUNDERSTRUCK,
-                    Modifier.CRYSTAL_SHELTER,
-                    Modifier.CRYSTAL_BLOOD,
-                    Modifier.PREPARED_ENEMIES,
-                    Modifier.SWARM_INTELLIGENCE
-                ), Trial(
-                    "The Challenger",
-                    null,
-                    Modifier.COLOSSEUM,
-                    Modifier.STRONGER_BOSSES,
-                    Modifier.HEAD_START,
-                    Modifier.RETIERED,
-                ), Trial(
-                    "Extinction Event",
-                    null,
-                    Modifier.GREAT_MIGRATION,
-                    Modifier.DEEPER_DANGER,
-                    Modifier.EXTREME_CAUTION,
-                    Modifier.REPEATER,
-                    Modifier.DUPLICATOR,
-                    Modifier.PARADOX_LEVELGEN,
-                    Modifier.HEAD_START,
-                ), Trial(
-                    "The Holy City",
-                    null,
-                    Modifier.PATRON_SAINTS,
-                    Modifier.PERSISTENT_SAINTS,
-                    Modifier.HOLY_WATER,
-                    Modifier.CHAMPION_ENEMIES,
-                    Modifier.FAITH_ARMOR,
-                ), Trial(
-                    "Teh Chariot",
-                    null,
-                    Modifier.MOLES,
-                    Modifier.HORDE,
-                    Modifier.SWARM_INTELLIGENCE,
-                    Modifier.HEAD_START,
-                    Modifier.BULKY_FRAME,
-                    Modifier.SLIDING,
-                )
-            )
-        )
     }
 }
 
@@ -373,7 +248,7 @@ class Trials : Bundlable {
     private val groups = mutableListOf<TrialGroup>()
 
     fun getGroups(): List<TrialGroup> {
-        return groups.toList()
+        return groups
     }
 
     override fun restoreFromBundle(bundle: Bundle) {
@@ -407,7 +282,9 @@ class Trials : Bundlable {
         private const val TRIALS_FILE: String = "trials.dat"
 
         private fun empty(): Trials {
-            return Trials().also { it.groups.addAll(TrialGroup.BUILT_IN) }
+            return Trials().also {
+                it.groups.addAll(TrialGroup.DEFAULT_GROUPS)
+            }
         }
 
         var curTrial: Trial? = null
@@ -430,15 +307,41 @@ class Trials : Bundlable {
             if (trials != null) {
                 return trials!!
             }
-            this.trials = empty()
+            val trials = empty()
 
             try {
                 val bundle = FileUtils.bundleFromFile(TRIALS_FILE)
-                this.trials!!.restoreFromBundle(bundle)
+                trials.restoreFromBundle(bundle)
             } catch (_: IOException) {
             }
 
-            return trials!!
+            val internals: MutableMap<Int, TrialGroup> = mutableMapOf()
+            TrialGroup.DEFAULT_GROUPS.associateByTo(internals) { it.internalId!! }
+
+            var anyUpdated = false
+            for (group in trials.groups) {
+                val id = group.internalId ?: continue
+
+                val internal = internals.remove(id)
+
+                if (internal != null) anyUpdated = group.compareUpdate(internal) || anyUpdated
+            }
+
+            for (group in internals.values) {
+                trials.groups.add(group.copyData().also { g ->
+                    g.markUpdated()
+                })
+                anyUpdated = true
+            }
+
+            this.trials = trials
+
+            if(anyUpdated) {
+                trials.groups.sortBy { it.internalId }
+                save()
+            }
+
+            return trials
         }
 
         fun addGroup(url: String): Boolean {
@@ -449,8 +352,7 @@ class Trials : Bundlable {
                         return false
                     }
                 }
-                val g = TrialGroup("", Game.versionCode, null)
-                g.version = -1
+                val g = TrialGroup("", -1)
                 g.url = url
                 trials.groups.add(g)
                 save()
@@ -491,16 +393,8 @@ class Trials : Bundlable {
                         try {
                             val newGroup = TrialGroup.fromNetworkBundle(bundle)
                             group.updateError = null
-                            if (newGroup.version > group.version) {
-                                group.trials = newGroup.trials
-                                group.wantNotify = true
-                                group.updatedAt = Game.realTime
-                                group.version = newGroup.version
-                                if(group.name.isBlank()) {
-                                    group.name = newGroup.name
-                                }
-                                save()
-                            }
+
+                            if (group.compareUpdate(newGroup)) save()
                         } catch (e: Exception) {
                             group.updateError = "Bad group structure:\n${e.message}"
                             Game.reportException(e)
@@ -511,7 +405,8 @@ class Trials : Bundlable {
                     override fun failed(t: Throwable?) {
                         group.isUpdating = false
                         if (t is SSLProtocolException) {
-                            group.updateError = "Update failed due to SSL error\nYour device may not support the required encryption"
+                            group.updateError =
+                                "Update failed due to SSL error\nYour device may not support the required encryption"
                         } else {
                             group.updateError = "Update failed:\n${t?.message}"
                         }

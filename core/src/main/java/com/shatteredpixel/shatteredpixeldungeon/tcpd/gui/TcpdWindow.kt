@@ -4,8 +4,9 @@ import com.shatteredpixel.shatteredpixeldungeon.Chrome
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.context.Context
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Ui
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window
+import com.watabou.noosa.NinePatch
 
-abstract class TcpdWindow : Window(0, 0, Chrome.get(Chrome.Type.WINDOW)) {
+abstract class TcpdWindow(chrome: NinePatch = Chrome.get(Chrome.Type.WINDOW)) : Window(0, 0, chrome) {
     private val ctx = Context()
     protected var maxSize: Vec2 = Vec2(120, Int.MAX_VALUE)
 
