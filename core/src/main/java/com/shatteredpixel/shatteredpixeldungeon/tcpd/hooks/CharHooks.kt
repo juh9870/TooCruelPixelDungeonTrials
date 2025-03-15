@@ -268,6 +268,7 @@ fun Char.moveHook(step: Int, travelling: Boolean) {
         val terrain = Dungeon.level.map[step]
         if (terrain == Terrain.OPEN_DOOR || terrain == Terrain.DOOR) {
             Dungeon.level.strongDestroy(step)
+            GameScene.updateMap(step)
 
             Sample.INSTANCE.play(Assets.Sounds.ROCKS, 0.25f, 1.5f)
             Sample.INSTANCE.play(Assets.Sounds.BURNING, 0.25f, 1.5f)
