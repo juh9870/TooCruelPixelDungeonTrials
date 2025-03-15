@@ -112,6 +112,7 @@ class Trial() : Bundlable {
         private const val LOCKED_CLASS = "locked_class"
 
         val CUSTOM = Trial("Custom")
+//        val NONE = Trial("!!!NULL TRIAL!!!")
 
         fun fromNetworkBundle(bundle: Bundle): Trial {
             val name = bundle.getString(NAME)

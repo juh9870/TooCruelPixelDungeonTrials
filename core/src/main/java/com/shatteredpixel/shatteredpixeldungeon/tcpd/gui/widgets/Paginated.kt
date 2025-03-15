@@ -118,6 +118,8 @@ internal fun Ui.pageSwitchBtn(page: Int, currentPage: Int): InteractiveResponse<
                 val label = label("${page + 1}", 9)
                 if (page == currentPage) {
                     label.widget.hardlight(0xFFFF44)
+                } else {
+                    label.widget.resetColor()
                 }
             }
         }

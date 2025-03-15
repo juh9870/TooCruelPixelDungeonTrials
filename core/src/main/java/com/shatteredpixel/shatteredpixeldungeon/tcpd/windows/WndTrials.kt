@@ -66,6 +66,10 @@ class WndTrials : TcpdWindow() {
     private var editMode = false
     private var isOnTop = true
 
+    override fun isUpdating(): Boolean {
+        return isOnTop
+    }
+
     override fun Ui.drawUi() {
         verticalJustified {
             verticalJustified {
@@ -149,18 +153,15 @@ class WndTrials : TcpdWindow() {
                 updateBtn()
             }
 
-            var curTrialWasShown by useState(Unit) { false }
             val curTrial = Trials.curTrial
-            if (curTrial != null && (isOnTop || curTrialWasShown)) {
-                curTrialWasShown = true
+
+            if(curTrial != null) {
                 withEnabled(!editMode) {
                     verticalJustified(background = Chrome.Type.GREY_BUTTON.descriptor()) {
                         activeLabel(Messages.get(WndTrials::class.java, "current"), 8)
                         trialButton(curTrial)
                     }
                 }
-            } else {
-                curTrialWasShown = false
             }
 
             val trials = Trials.load()

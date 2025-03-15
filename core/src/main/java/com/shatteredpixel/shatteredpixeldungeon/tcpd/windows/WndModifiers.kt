@@ -9,6 +9,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.TCPDData
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.TCPDGameInfoData
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Trial
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Margins
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.TcpdComponent
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.TcpdWindow
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Vec2
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.useMemo
@@ -23,6 +24,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.rightToLeft
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.shrinkToFitLabel
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.verticalJustified
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons
+import com.shatteredpixel.shatteredpixeldungeon.ui.Window.TITLE_COLOR
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndError
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndTextInput
@@ -42,71 +44,90 @@ open class WndModifiers(
     }
 
     override fun Ui.drawUi() {
-        verticalJustified {
-            rightToLeft {
-                iconButton(Icons.SCROLL_COLOR.descriptor()).onClick {
-                    ShatteredPixelDungeon.scene().add(
-                        object : WndTextInput(
-                            Messages.get(WndModifiers::class.java, "edit_title"),
-                            Messages.get(WndModifiers::class.java, "edit_body"),
-                            modifiers.serializeToString(),
-                            256,
-                            false,
-                            Messages.get(WndModifiers::class.java, "edit_apply"),
-                            Messages.get(WndModifiers::class.java, "edit_cancel"),
-                        ) {
-                            override fun onSelect(positive: Boolean, text: String) {
-                                if (positive && editable) {
-                                    try {
-                                        val trimmed = text.trim()
-                                        if (trimmed.isBlank()) {
-                                            modifiers.disableAll()
-                                        } else {
-                                            modifiers.enableFrom(
-                                                Modifiers.deserializeFromString(
-                                                    trimmed
-                                                )
-                                            )
-                                        }
-                                    } catch (e: Exception) {
-                                        ShatteredPixelDungeon.scene().add(
-                                            WndError(
-                                                Messages.get(
-                                                    WndModifiers::class.java,
-                                                    "edit_error"
-                                                )
+        drawModifiers(modifiers, trial, editable)
+    }
+}
+
+open class ModifiersComponent(
+    private val modifiers: Modifiers,
+    private val trial: Trial?,
+    private val editable: Boolean
+) :
+    TcpdComponent() {
+
+    constructor(data: TCPDData) : this(data.modifiers, data.trial, false)
+    constructor(data: TCPDGameInfoData) : this(data.modifiers, data.trials, false)
+
+    override fun Ui.drawUi() {
+        drawModifiers(modifiers, trial, editable)
+    }
+}
+
+fun Ui.drawModifiers(modifiers: Modifiers, trial: Trial?, editable: Boolean) {
+    verticalJustified {
+        rightToLeft {
+            iconButton(Icons.SCROLL_COLOR.descriptor()).onClick {
+                ShatteredPixelDungeon.scene().add(
+                    object : WndTextInput(
+                        Messages.get(WndModifiers::class.java, "edit_title"),
+                        Messages.get(WndModifiers::class.java, "edit_body"),
+                        modifiers.serializeToString(),
+                        256,
+                        false,
+                        Messages.get(WndModifiers::class.java, "edit_apply"),
+                        Messages.get(WndModifiers::class.java, "edit_cancel"),
+                    ) {
+                        override fun onSelect(positive: Boolean, text: String) {
+                            if (positive && editable) {
+                                try {
+                                    val trimmed = text.trim()
+                                    if (trimmed.isBlank()) {
+                                        modifiers.disableAll()
+                                    } else {
+                                        modifiers.enableFrom(
+                                            Modifiers.deserializeFromString(
+                                                trimmed
                                             )
                                         )
                                     }
+                                } catch (e: Exception) {
+                                    ShatteredPixelDungeon.scene().add(
+                                        WndError(
+                                            Messages.get(
+                                                WndModifiers::class.java,
+                                                "edit_error"
+                                            )
+                                        )
+                                    )
                                 }
-                                super.onSelect(positive, text)
                             }
+                            super.onSelect(positive, text)
                         }
-                    )
-                }
-                verticalJustified {
-                    label(Messages.get(WndModifiers::class.java, "title"), 12).widget.hardlight(
-                        TITLE_COLOR
-                    )
-                }
+                    }
+                )
             }
-            
-            if(trial != null) {
-                shrinkToFitLabel(Messages.get(WndModifiers::class.java, "trial", trial.name), 9)
+            verticalJustified {
+                label(Messages.get(WndModifiers::class.java, "title"), 12).widget.hardlight(
+                    TITLE_COLOR
+                )
             }
+        }
 
-            top().addSpace(2)
+        if(trial != null) {
+            shrinkToFitLabel(Messages.get(WndModifiers::class.java, "trial", trial.name), 9)
+        }
 
-            val modifiersList by useMemo(Unit) {
-                val allEnabled = Modifier.entries.filter { modifiers.isEnabled(it) }
-                if (!editable) return@useMemo allEnabled
+        top().addSpace(2)
 
-                val allDisabled = Modifier.entries.filter { !modifiers.isEnabled(it) }
-                allEnabled + allDisabled
-            }
-            PaginatedList(modifiersList.size, 17).show(this) { i ->
-                modifierBtn(modifiers, modifiersList[i], editable)
-            }
+        val modifiersList by useMemo(Unit) {
+            val allEnabled = Modifier.entries.filter { modifiers.isEnabled(it) }
+            if (!editable) return@useMemo allEnabled
+
+            val allDisabled = Modifier.entries.filter { !modifiers.isEnabled(it) }
+            allEnabled + allDisabled
+        }
+        PaginatedList(modifiersList.size, 17).show(this) { i ->
+            modifierBtn(modifiers, modifiersList[i], editable)
         }
     }
 }

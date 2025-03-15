@@ -54,7 +54,7 @@ class TCPDGameInfoData : Bundlable {
     var trials: Trial? = null
 
     fun modifiersBtnString(): String {
-        return trials?.name ?: Messages.get(Trials::class.java, "modifiers")
+        return trials?.name ?: Messages.get(Trials::class.java, "custom")
     }
 
     fun isChallenged(): Boolean {

@@ -38,6 +38,8 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Trials;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.windows.ModifiersComponent;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BadgesGrid;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BadgesList;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Button;
@@ -192,6 +194,17 @@ public class WndRanking extends WndTabbed {
 			add(version);
 
 			pos = date.bottom()+5;
+
+			{
+				pos -= 2;
+				RenderedTextBlock trial = PixelScene.renderTextBlock(Messages.get(Trials.class, "trial"), 7);
+				trial.setPos(0, pos);
+				add(trial);
+				RenderedTextBlock trialName = PixelScene.renderTextBlock("_" + Dungeon.tcpdData.asInfoData().modifiersBtnString() + "_", 7);
+				trialName.setPos(Math.min(WIDTH - trialName.width(), WIDTH * 0.6f), pos);
+				add(trialName);
+				pos = trial.bottom() + 5;
+			}
 
 			NumberFormat num = NumberFormat.getInstance(Messages.locale());
 
@@ -431,6 +444,11 @@ public class WndRanking extends WndTabbed {
 			super();
 
 			camera = WndRanking.this.camera;
+
+			if(true) {
+				add(new ModifiersComponent(Dungeon.tcpdData).setRect(0, 0, WIDTH, HEIGHT));
+				return;
+			}
 
 			float pos = 0;
 
