@@ -111,9 +111,9 @@ class RetieredBuff : Buff() {
                     val roll = Random.chances(
                         floatArrayOf(
                             0.5f,
-                            if(curTier != 1) 0.20f else 0.25f,
+                            if (curTier != 1) 0.20f else 0.25f,
                             0.25f,
-                            if(curTier != 1) 0.05f else 0f
+                            if (curTier != 1) 0.05f else 0f
                         )
                     );
                     if (roll == 3) {

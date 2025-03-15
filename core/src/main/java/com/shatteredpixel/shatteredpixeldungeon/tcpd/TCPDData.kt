@@ -4,15 +4,15 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.watabou.utils.Bundlable
 import com.watabou.utils.Bundle
 
-class TCPDData(trial:Trial) : Bundlable {
+class TCPDData(trial: Trial) : Bundlable {
     var modifiers: Modifiers
     var trial: Trial? = null
 
-    constructor(): this(Trial.CUSTOM)
+    constructor() : this(Trial.CUSTOM)
 
     init {
         this.modifiers = trial.getModifiers() ?: throw IllegalArgumentException("Invalid trial")
-        if(trial != Trial.CUSTOM) this.trial = trial
+        if (trial != Trial.CUSTOM) this.trial = trial
     }
 
     fun asInfoData(): TCPDGameInfoData {

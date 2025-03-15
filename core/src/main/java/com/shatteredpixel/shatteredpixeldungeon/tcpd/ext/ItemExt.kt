@@ -9,10 +9,10 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Level
 fun Item.collectOrDrop(hero: Hero? = null, level: Level? = null) {
     val hero = hero ?: Dungeon.hero
     val level = level ?: Dungeon.level
-    if(isEquipped(hero)) {
+    if (isEquipped(hero)) {
         return
     }
-    if(!collect()) {
+    if (!collect()) {
         level.drop(this, hero.pos).sprite.drop()
     }
 }

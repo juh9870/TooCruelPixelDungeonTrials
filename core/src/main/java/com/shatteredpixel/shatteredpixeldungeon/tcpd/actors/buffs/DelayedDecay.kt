@@ -32,7 +32,7 @@ class DelayedDecay : Buff(), InvulnerabilityBuff {
             target.sprite.emitter().burst(ShadowParticle.UP, 10)
         }
         invulnerable = false
-        if(target is Mob) {
+        if (target is Mob) {
             val mob = target as Mob
             mob.EXP = 0
         }
@@ -59,7 +59,7 @@ class DelayedDecay : Buff(), InvulnerabilityBuff {
     }
 
     companion object {
-        const val FX:String = "show_death_fx"
-        const val INVULNERABLE:String = "invulnerable"
+        const val FX: String = "show_death_fx"
+        const val INVULNERABLE: String = "invulnerable"
     }
 }

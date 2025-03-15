@@ -56,15 +56,23 @@ fun Ui.dimInactiveText(res: WidgetResponse<RenderedTextBlock>, active: Boolean? 
     val id = res.response.id.with("labelDimmer")
     val enabled = active ?: top.isEnabled()
     val anim = ctx().getOrPutMemory(id) { AnimationState(enabled) }
-    res.widget.alpha(anim.animate(enabled, top.style().interactionAnimationDuration) { 0.3f + 0.7f * it })
+    res.widget.alpha(
+        anim.animate(
+            enabled,
+            top.style().interactionAnimationDuration
+        ) { 0.3f + 0.7f * it })
 }
 
-fun<T:Visual> Ui.dimInactiveVisual(res: WidgetResponse<T>, active: Boolean? = null) {
+fun <T : Visual> Ui.dimInactiveVisual(res: WidgetResponse<T>, active: Boolean? = null) {
     val top = top()
     val id = res.response.id.with("labelDimmer")
     val enabled = active ?: top.isEnabled()
     val anim = ctx().getOrPutMemory(id) { AnimationState(enabled) }
-    res.widget.alpha(anim.animate(enabled, top.style().interactionAnimationDuration) { 0.3f + 0.7f * it })
+    res.widget.alpha(
+        anim.animate(
+            enabled,
+            top.style().interactionAnimationDuration
+        ) { 0.3f + 0.7f * it })
 }
 
 @Suppress("NAME_SHADOWING")

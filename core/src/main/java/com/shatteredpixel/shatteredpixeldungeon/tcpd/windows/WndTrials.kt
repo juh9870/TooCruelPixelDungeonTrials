@@ -96,7 +96,7 @@ class WndTrials : TcpdWindow() {
                                     super.onBackPressed()
                                     Trial.CUSTOM.setModifiers(modifiers)
                                     if (!modifiers.isChallenged()) {
-                                        if(prevTrial == Trial.CUSTOM) {
+                                        if (prevTrial == Trial.CUSTOM) {
                                             Trials.curTrial = null
                                         } else {
                                             Trials.curTrial = prevTrial
@@ -155,7 +155,7 @@ class WndTrials : TcpdWindow() {
 
             val curTrial = Trials.curTrial
 
-            if(curTrial != null) {
+            if (curTrial != null) {
                 withEnabled(!editMode) {
                     verticalJustified(background = Chrome.Type.GREY_BUTTON.descriptor()) {
                         activeLabel(Messages.get(WndTrials::class.java, "current"), 8)
@@ -251,7 +251,14 @@ class WndTrials : TcpdWindow() {
                     icoDelete.onClick {
                         if (group.internalId != null) {
                             ShatteredPixelDungeon.scene()
-                                .add(WndMessage(Messages.get(WndTrials::class.java, "remove_internal")))
+                                .add(
+                                    WndMessage(
+                                        Messages.get(
+                                            WndTrials::class.java,
+                                            "remove_internal"
+                                        )
+                                    )
+                                )
                             return@onClick
                         }
                         ShatteredPixelDungeon.scene().add(
@@ -275,14 +282,22 @@ class WndTrials : TcpdWindow() {
                         )
 
                     }
-                    val icoEdit = appearingIconButton(Icons.SCROLL_COLOR.descriptor(), duration = 0.3f)
+                    val icoEdit =
+                        appearingIconButton(Icons.SCROLL_COLOR.descriptor(), duration = 0.3f)
                     if (group.internalId != null) {
                         icoEdit.inner.alpha(0.5f)
                     }
                     icoEdit.onClick {
                         if (group.internalId != null) {
                             ShatteredPixelDungeon.scene()
-                                .add(WndMessage(Messages.get(WndTrials::class.java, "edit_internal")))
+                                .add(
+                                    WndMessage(
+                                        Messages.get(
+                                            WndTrials::class.java,
+                                            "edit_internal"
+                                        )
+                                    )
+                                )
                             return@onClick
                         }
                         ShatteredPixelDungeon.scene().add(object : WndTextInput(
@@ -335,7 +350,7 @@ class WndTrials : TcpdWindow() {
                         group.notificationShown()
                         isOnTop = false
                         ShatteredPixelDungeon.scene().add(
-                            object:WndTrialsGroup(group) {
+                            object : WndTrialsGroup(group) {
                                 override fun onBackPressed() {
                                     super.onBackPressed()
                                     isOnTop = true

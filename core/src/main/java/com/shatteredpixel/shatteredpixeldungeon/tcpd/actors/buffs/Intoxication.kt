@@ -194,7 +194,11 @@ class Intoxication : Buff() {
 
         fun applyMajor(targ: Char) {
             when (Random.Int(6)) {
-                0 -> affect(targ, Corrosion::class.java).set(Random.NormalFloat(3f, 5f), targ.HT / 20)
+                0 -> affect(targ, Corrosion::class.java).set(
+                    Random.NormalFloat(3f, 5f),
+                    targ.HT / 20
+                )
+
                 1 -> prolong(targ, Paralysis::class.java, Random.NormalFloat(7f, 13f))
                 2 -> prolong(targ, Weakness::class.java, Random.NormalFloat(15f, 25f))
                 3 -> prolong(targ, Frost::class.java, Random.NormalFloat(15f, 25f))

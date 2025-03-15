@@ -35,7 +35,7 @@ class ControlledRandomness : Buff(), DefenseProcBuff {
             rerollChance += CHANCE_INCREMENT
         }
     }
-    
+
     override fun storeInBundle(bundle: Bundle) {
         super.storeInBundle(bundle)
         bundle.put(REROLL_CHANCE, rerollChance)

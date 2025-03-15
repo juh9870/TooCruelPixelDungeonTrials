@@ -46,13 +46,13 @@ fun Hero.heroLiveHook() {
     if (Modifier.RETIERED.active()) {
         Buff.affect(this, RetieredBuff::class.java)
     }
-    if(Modifier.UNSTABLE_ACCESSORIES.active()) {
+    if (Modifier.UNSTABLE_ACCESSORIES.active()) {
         Buff.affect(this, ControlledRandomness::class.java)
     }
-    if(Modifier.PANDEMONIUM.active()) {
+    if (Modifier.PANDEMONIUM.active()) {
         Buff.affect(this, Pandemonium::class.java)
     }
-    if(Modifier.INSOMNIA.active()) {
+    if (Modifier.INSOMNIA.active()) {
         Buff.affect(this, Insomnia::class.java)
     }
 }
@@ -66,7 +66,7 @@ fun Hero.heroSpendConstantHook(time: Float) {
 @Suppress("NAME_SHADOWING")
 fun Hero.moveHook(step: Int): Int {
     var step = step
-    if(Modifier.SLIDING.active()) {
+    if (Modifier.SLIDING.active()) {
         val move: Int = step - pos
         var tilesSlid = 0
         do {
@@ -87,7 +87,7 @@ fun Hero.moveHook(step: Int): Int {
             ) {
                 init {
                     listener = Listener {
-                        if(clearWater) {
+                        if (clearWater) {
                             GameScene.updateMap(curStep)
                             CellEmitter.get(curStep).burst(Speck.factory(Speck.STEAM), 5)
                         }
@@ -98,9 +98,9 @@ fun Hero.moveHook(step: Int): Int {
             step = nextStep
             tilesSlid++
         } while (true)
-        if(tilesSlid > 0) {
+        if (tilesSlid > 0) {
             interrupt()
-            if(tilesSlid >= Dungeon.level.viewDistance / 2) {
+            if (tilesSlid >= Dungeon.level.viewDistance / 2) {
                 Dungeon.observe()
                 GameScene.updateFog()
             }
@@ -109,12 +109,12 @@ fun Hero.moveHook(step: Int): Int {
     return step
 }
 
-fun Hero.wandProcHook(target:Char, wand: Wand, chargesUsed: Int) {
+fun Hero.wandProcHook(target: Char, wand: Wand, chargesUsed: Int) {
 
 }
 
 fun Hero.wandUsedHook(wand: Wand) {
-    if(Modifier.PANDEMONIUM.active()) {
+    if (Modifier.PANDEMONIUM.active()) {
         buff(Pandemonium::class.java)?.wandUsed(wand)
     }
 }

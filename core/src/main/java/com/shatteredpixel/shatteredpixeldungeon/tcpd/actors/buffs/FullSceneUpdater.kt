@@ -3,8 +3,6 @@ package com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
-import com.shatteredpixel.shatteredpixeldungeon.utils.GLog
-import com.watabou.utils.DeviceCompat
 import kotlin.math.min
 
 class FullSceneUpdater : Buff() {

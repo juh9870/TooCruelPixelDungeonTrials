@@ -45,7 +45,7 @@ class Context(val rootGroup: Group = Group()) {
         return value as T?
     }
 
-    inline fun <reified T : Any> getOrPutMemory(id: UiId, crossinline defaultValue: ()->T): T {
+    inline fun <reified T : Any> getOrPutMemory(id: UiId, crossinline defaultValue: () -> T): T {
         val value = memory.getOrPut(id, defaultValue);
         if (value !is T) {
             throw IllegalStateException("Memory value type mismatch: expected ${T::class}, got ${value::class}. Id: $id")

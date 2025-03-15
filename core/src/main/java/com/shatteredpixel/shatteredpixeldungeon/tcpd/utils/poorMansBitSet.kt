@@ -69,7 +69,7 @@ fun BooleanArray.asBytes(padValue: Boolean): ByteArray {
  * This will return a new byte array with all the trailing 0 bytes removed
  */
 fun ByteArray.trimEnd(): ByteArray {
-    for(i in this.size - 1 downTo 0) {
+    for (i in this.size - 1 downTo 0) {
         if (this[i] == 0.toByte()) {
             continue
         }
@@ -77,11 +77,12 @@ fun ByteArray.trimEnd(): ByteArray {
     }
     return this.copyOf()
 }
+
 /**
  * This will return a new boolean array with removed trailing values
  */
-fun BooleanArray.trimEnd(toRemove:Boolean = false): BooleanArray {
-    for(i in this.size - 1 downTo 0) {
+fun BooleanArray.trimEnd(toRemove: Boolean = false): BooleanArray {
+    for (i in this.size - 1 downTo 0) {
         if (this[i] == toRemove) {
             continue
         }

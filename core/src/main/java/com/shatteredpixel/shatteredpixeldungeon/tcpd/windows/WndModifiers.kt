@@ -113,7 +113,7 @@ fun Ui.drawModifiers(modifiers: Modifiers, trial: Trial?, editable: Boolean) {
             }
         }
 
-        if(trial != null) {
+        if (trial != null) {
             shrinkToFitLabel(Messages.get(WndModifiers::class.java, "trial", trial.name), 9)
         }
 

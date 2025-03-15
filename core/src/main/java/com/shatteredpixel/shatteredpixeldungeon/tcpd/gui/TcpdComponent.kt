@@ -17,7 +17,7 @@ abstract class TcpdComponent(chrome: NinePatch = Chrome.get(Chrome.Type.WINDOW))
 
     override fun layout() {
         super.layout()
-        if(!inUpdate) update()
+        if (!inUpdate) update()
     }
 
     override fun destroy() {
@@ -26,7 +26,7 @@ abstract class TcpdComponent(chrome: NinePatch = Chrome.get(Chrome.Type.WINDOW))
     }
 
     override fun update() {
-        if(!isUpdating() && !firstUpdate) return
+        if (!isUpdating() && !firstUpdate) return
         firstUpdate = false
         inUpdate = true
         val res = ctx.update(

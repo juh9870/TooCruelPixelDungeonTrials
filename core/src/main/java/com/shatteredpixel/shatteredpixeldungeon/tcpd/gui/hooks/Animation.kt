@@ -23,7 +23,7 @@ class AnimationState(startingState: Boolean) {
         if (progress != target) {
             val step = (1f / durationSeconds) * Game.elapsed * sign(target - progress)
 
-            easing = if(step > 0) easingUp else easingDown
+            easing = if (step > 0) easingUp else easingDown
 
             progress = GameMath.gate(0f, progress + step, 1f)
         }

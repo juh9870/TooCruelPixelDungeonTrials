@@ -139,9 +139,14 @@ abstract class Layout(protected var availableSpace: Rect) {
         }
     }
 
-    class ColumnsLayout(private val columns: FloatArray, private val spacing: Int, availableSpace: Rect) :
+    class ColumnsLayout(
+        private val columns: FloatArray,
+        private val spacing: Int,
+        availableSpace: Rect
+    ) :
         Layout(availableSpace) {
-        class ColumnsLayoutConstructor(private val columns: FloatArray, private val spacing: Int) : LayoutConstructor {
+        class ColumnsLayoutConstructor(private val columns: FloatArray, private val spacing: Int) :
+            LayoutConstructor {
             override fun construct(availableSpace: Rect): Layout {
                 return ColumnsLayout(columns, spacing, availableSpace)
             }
@@ -160,25 +165,26 @@ abstract class Layout(protected var availableSpace: Rect) {
 
         private val columnWidths = IntArray(columns.size)
         private val unusedSpace: Int
+
         init {
-            if(columns.isEmpty()) {
+            if (columns.isEmpty()) {
                 throw IllegalArgumentException("Columns layout requires at least one column")
             }
             val totalAvailable = availableSpace.width() - spacing * (columns.size - 1)
-            for(i in columns.indices) {
+            for (i in columns.indices) {
                 columnWidths[i] = (columns[i] * totalAvailable / columnsSum).toInt()
             }
 
             unusedSpace = totalAvailable - columnWidths.sum()
-            if(unusedSpace > 0) {
+            if (unusedSpace > 0) {
                 val distributeToEach = unusedSpace / columns.size
-                if(distributeToEach > 0)  {
-                    for(i in columnWidths.indices) {
+                if (distributeToEach > 0) {
+                    for (i in columnWidths.indices) {
                         columnWidths[i] += distributeToEach
                     }
                 }
                 val remaining = unusedSpace - distributeToEach * columns.size
-                if(remaining > 0) {
+                if (remaining > 0) {
                     columnWidths[0] += floor(remaining / 2f).toInt()
                     columnWidths[columnWidths.size - 1] += ceil(remaining / 2f).toInt()
                 }
