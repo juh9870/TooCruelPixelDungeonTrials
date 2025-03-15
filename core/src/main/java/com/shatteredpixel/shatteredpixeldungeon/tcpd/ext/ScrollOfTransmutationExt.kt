@@ -15,7 +15,7 @@ import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog
 
-fun transmuteInventoryItem(item: Item, hero: Hero) {
+fun transmuteInventoryItem(item: Item, hero: Hero): Item? {
     var result = ScrollOfTransmutation.changeItem(item)
 
     if (result != null) {
@@ -57,9 +57,15 @@ fun transmuteInventoryItem(item: Item, hero: Hero) {
             Catalog.setSeen(result.javaClass)
             Statistics.itemTypesDiscovered.add(result.javaClass)
         }
-        Transmuting.show(hero, item, result)
-        hero.sprite.emitter().start(Speck.factory(Speck.CHANGE), 0.2f, 10)
-        GLog.p(Messages.get(ScrollOfTransmutation::class.java, "morph"))
+        showItemTransmuted(hero, item, result)
+        return result
     }
 
+    return null
+}
+
+fun showItemTransmuted(hero: Hero, item: Item, result: Item) {
+    Transmuting.show(hero, item, result)
+    hero.sprite.emitter().start(Speck.factory(Speck.CHANGE), 0.2f, 10)
+    GLog.p(Messages.get(ScrollOfTransmutation::class.java, "morph"))
 }

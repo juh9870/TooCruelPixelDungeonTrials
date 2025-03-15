@@ -29,6 +29,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.MissileSprite;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Pandemonium;
 import com.watabou.noosa.tweeners.AlphaTweener;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.Callback;
@@ -63,6 +64,11 @@ public class HeavyBoomerang extends MissileWeapon {
 
 	@Override
 	protected void rangedHit(Char enemy, int cell) {
+		MissileWeapon changed = Pandemonium.Companion.rerollMissile(this);
+		if(changed != this) {
+			Dungeon.level.drop( changed, cell ).sprite.drop();
+			return;
+		}
 		decrementDurability();
 		if (durability > 0){
 			Buff.append(Dungeon.hero, CircleBack.class).setup(this, cell, Dungeon.hero.pos, Dungeon.depth, Dungeon.branch);

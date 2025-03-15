@@ -321,6 +321,10 @@ public class MagesStaff extends MeleeWeapon {
 		}
 	}
 
+	public Wand getWand() {
+		return wand;
+	}
+
 	@Override
 	public String status() {
 		if (wand == null) return super.status();
