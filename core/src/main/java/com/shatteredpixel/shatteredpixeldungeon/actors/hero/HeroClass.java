@@ -168,6 +168,8 @@ public enum HeroClass {
 				}
 			}
 
+			new ScrollOfLullaby().quantity(10).identify().collect();
+
 			new ScrollOfRemoveCurse().identify().collect();
 		}
 

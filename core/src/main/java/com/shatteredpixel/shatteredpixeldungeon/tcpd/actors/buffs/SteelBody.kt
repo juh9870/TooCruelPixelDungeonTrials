@@ -2,7 +2,12 @@ package com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs
 
 import com.badlogic.gdx.math.MathUtils
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Electricity
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.MagicalSleep
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
 import com.watabou.utils.Bundle
+import com.watabou.utils.Random
 
 class SteelBody : NoDetachShieldBuff() {
     init {
@@ -51,6 +56,20 @@ class SteelBody : NoDetachShieldBuff() {
 
             target.HP = 1
         }
+        target.buff(MagicalSleep::class.java)?.let {
+            GameScene.add(
+                Blob.seed(
+                    target.pos, 1,
+                    Electricity::class.java
+                )
+            )
+
+            // in case if the target is immune to electricity, wake them up after a while
+            if (Random.Float() < 0.1f) {
+                it.detach()
+            }
+        }
+
         spend(TICK)
         return true
     }
