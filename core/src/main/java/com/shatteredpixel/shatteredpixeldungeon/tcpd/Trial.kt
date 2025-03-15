@@ -99,7 +99,6 @@ class Trial() : Bundlable {
     }
 
     fun setModifiers(modifiers: Modifiers) {
-        if (!modifiers.isChallenged()) return
         this.modifiers = modifiers.asRaw()
     }
 

@@ -1,5 +1,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd
 
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.watabou.utils.Bundlable
 import com.watabou.utils.Bundle
 
@@ -51,6 +52,10 @@ class TCPDData(trial:Trial) : Bundlable {
 class TCPDGameInfoData : Bundlable {
     lateinit var modifiers: Modifiers
     var trials: Trial? = null
+
+    fun modifiersBtnString(): String {
+        return trials?.name ?: Messages.get(Trials::class.java, "modifiers")
+    }
 
     fun isChallenged(): Boolean {
         return modifiers.isChallenged()

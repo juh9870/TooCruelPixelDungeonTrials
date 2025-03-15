@@ -73,7 +73,7 @@ public class WndGameInProgress extends Window {
 		pos = title.bottom() + GAP;
 		
 		if (info.tcpdData.isChallenged()) {
-			RedButton btnChallenges = new RedButton( Messages.get(this, "challenges") ) {
+			RedButton btnChallenges = new RedButton( info.tcpdData.modifiersBtnString() ) {
 				@Override
 				protected void onClick() {
 					Game.scene().add( new WndModifiers( info.tcpdData ) );

@@ -30,7 +30,6 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.columns
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.customButton
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.dimInactiveText
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.dimInactiveVisual
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.drawRedCheckbox
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.highlightTouchedVisual
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.horizontal
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.iconButton
@@ -65,6 +64,7 @@ class WndTrials : TcpdWindow() {
     }
 
     private var editMode = false
+    private var isOnTop = true
 
     override fun Ui.drawUi() {
         verticalJustified {
@@ -83,6 +83,7 @@ class WndTrials : TcpdWindow() {
                             activeLabel(Messages.get(WndTrials::class.java, "custom"), 9)
                         }
                     }.onClick {
+                        val prevTrial = Trials.curTrial
                         Trials.curTrial = Trial.CUSTOM
                         val modifiers = Trial.CUSTOM.getModifiers()!!
                         ShatteredPixelDungeon.scene()
@@ -90,6 +91,13 @@ class WndTrials : TcpdWindow() {
                                 override fun onBackPressed() {
                                     super.onBackPressed()
                                     Trial.CUSTOM.setModifiers(modifiers)
+                                    if (!modifiers.isChallenged()) {
+                                        if(prevTrial == Trial.CUSTOM) {
+                                            Trials.curTrial = null
+                                        } else {
+                                            Trials.curTrial = prevTrial
+                                        }
+                                    }
                                 }
                             })
                     }
@@ -141,6 +149,20 @@ class WndTrials : TcpdWindow() {
                 updateBtn()
             }
 
+            var curTrialWasShown by useState(Unit) { false }
+            val curTrial = Trials.curTrial
+            if (curTrial != null && (isOnTop || curTrialWasShown)) {
+                curTrialWasShown = true
+                withEnabled(!editMode) {
+                    verticalJustified(background = Chrome.Type.GREY_BUTTON.descriptor()) {
+                        activeLabel(Messages.get(WndTrials::class.java, "current"), 8)
+                        trialButton(curTrial)
+                    }
+                }
+            } else {
+                curTrialWasShown = false
+            }
+
             val trials = Trials.load()
             val sortedGroups = trials.getGroups().sortedWith(compareBy({
                 it.updateError == null
@@ -152,7 +174,7 @@ class WndTrials : TcpdWindow() {
                     GROUPS_LIST_BG_KEY, Margins.only(top = 1)
                 ), bodyMargins = Margins.only(top = 2, bottom = 2)
             ).show(this) { i ->
-                trialGroupButton(sortedGroups[i], editMode)
+                trialGroupButton(sortedGroups[i])
             }
         }
     }
@@ -167,7 +189,7 @@ class WndTrials : TcpdWindow() {
         }
     }
 
-    fun Ui.updateBtn() {
+    private fun Ui.updateBtn() {
         val trials = Trials.load()
         var doASpin by useState(Unit) { false }
         val updatingCount = trials.getGroups().count { it.isUpdating }
@@ -211,6 +233,116 @@ class WndTrials : TcpdWindow() {
             }.onClick {
                 doASpin = true
                 Trials.checkForUpdates()
+            }
+        }
+    }
+
+    private fun Ui.trialGroupButton(group: TrialGroup) {
+        val groupName = group.nameOrTrimmedUrl()
+        top().setStyle(top().style().copy(backgroundInteractionAnimationDuration = 0.1f))
+        rightToLeft {
+            margins(Margins.only(right = 1)) {
+                withEnabled(editMode) {
+                    val icoDelete = appearingIconButton(Icons.CLOSE.descriptor(), duration = 0.3f)
+                    if (group.internalId != null) {
+                        icoDelete.inner.alpha(0.5f)
+                    }
+                    icoDelete.onClick {
+                        if (group.internalId != null) {
+                            ShatteredPixelDungeon.scene()
+                                .add(WndMessage(Messages.get(WndTrials::class.java, "remove_internal")))
+                            return@onClick
+                        }
+                        ShatteredPixelDungeon.scene().add(
+                            object : WndOptionsCondensed(
+                                Messages.get(WndTrials::class.java, "remove_group_title"),
+                                Messages.get(
+                                    WndTrials::class.java,
+                                    "remove_group_body",
+                                    groupName,
+                                    group.url
+                                ),
+                                Messages.get(WndTrials::class.java, "confirm"),
+                                Messages.get(WndTrials::class.java, "cancel"),
+                            ) {
+                                override fun onSelect(index: Int) {
+                                    if (index == 0) {
+                                        Trials.load().removeGroup(group)
+                                    }
+                                }
+                            }
+                        )
+
+                    }
+                    val icoEdit = appearingIconButton(Icons.SCROLL_COLOR.descriptor(), duration = 0.3f)
+                    if (group.internalId != null) {
+                        icoEdit.inner.alpha(0.5f)
+                    }
+                    icoEdit.onClick {
+                        if (group.internalId != null) {
+                            ShatteredPixelDungeon.scene()
+                                .add(WndMessage(Messages.get(WndTrials::class.java, "edit_internal")))
+                            return@onClick
+                        }
+                        ShatteredPixelDungeon.scene().add(object : WndTextInput(
+                            Messages.get(WndTrials::class.java, "edit_title"),
+                            Messages.get(WndTrials::class.java, "edit_body", groupName, group.url),
+                            group.url,
+                            1024,
+                            false,
+                            Messages.get(WndTrials::class.java, "confirm"),
+                            Messages.get(WndTrials::class.java, "cancel"),
+                        ) {
+                            override fun onSelect(positive: Boolean, text: String?) {
+                                if (!positive || !validateUrl(text)) return
+
+                                group.url = text!!
+                                Trials.save()
+
+                                Trials.checkForUpdates() // TODO: individual updates?
+                            }
+                        })
+                    }
+                }
+                withEnabled(group.updateError != null) {
+                    appearingIconButton(Icons.WARNING.descriptor(), duration = 0.3f).onClick {
+                        ShatteredPixelDungeon.scene().add(
+                            WndError(group.updateError!!)
+                        )
+                    }
+                }
+            }
+            verticalJustified {
+                withEnabled(!group.isUpdating) {
+                    redButton(
+                        margins = RED_BUTTON_MARGINS.copy(top = 4),
+                        background = NinePatchDescriptor.Gradient(GRADIENT)
+                    ) {
+                        val label = shrinkToFitLabel(groupName, 9)
+                        if (group.wantNotify) {
+                            label.widget.hardlight(
+                                ColorMath.interpolate(
+                                    0xFFFFFF,
+                                    Window.SHPX_COLOR,
+                                    0.5f + sin((Game.timeTotal * 5).toDouble()).toFloat() / 2f
+                                )
+                            )
+                        } else {
+                            label.widget.resetColor()
+                        }
+                    }.onClick {
+                        group.notificationShown()
+                        isOnTop = false
+                        ShatteredPixelDungeon.scene().add(
+                            object:WndTrialsGroup(group) {
+                                override fun onBackPressed() {
+                                    super.onBackPressed()
+                                    isOnTop = true
+                                }
+                            }
+                        )
+                    }
+                }
             }
         }
     }
@@ -258,110 +390,6 @@ private val GRADIENT = intArrayOf(
     0xFFC5BC9Fu.toInt(),
 )
 
-private fun Ui.trialGroupButton(group: TrialGroup, editMode: Boolean) {
-    val groupName = group.nameOrTrimmedUrl()
-    top().setStyle(top().style().copy(backgroundInteractionAnimationDuration = 0.1f))
-    rightToLeft {
-        margins(Margins.only(right = 1)) {
-            withEnabled(editMode) {
-                val icoDelete = appearingIconButton(Icons.CLOSE.descriptor(), duration = 0.3f)
-                if (group.internalId != null) {
-                    icoDelete.inner.alpha(0.5f)
-                }
-                icoDelete.onClick {
-                    if (group.internalId != null) {
-                        ShatteredPixelDungeon.scene()
-                            .add(WndMessage(Messages.get(WndTrials::class.java, "remove_internal")))
-                        return@onClick
-                    }
-                    ShatteredPixelDungeon.scene().add(
-                        object : WndOptionsCondensed(
-                            Messages.get(WndTrials::class.java, "remove_group_title"),
-                            Messages.get(
-                                WndTrials::class.java,
-                                "remove_group_body",
-                                groupName,
-                                group.url
-                            ),
-                            Messages.get(WndTrials::class.java, "confirm"),
-                            Messages.get(WndTrials::class.java, "cancel"),
-                        ) {
-                            override fun onSelect(index: Int) {
-                                if (index == 0) {
-                                    Trials.load().removeGroup(group)
-                                }
-                            }
-                        }
-                    )
-
-                }
-                val icoEdit = appearingIconButton(Icons.SCROLL_COLOR.descriptor(), duration = 0.3f)
-                if (group.internalId != null) {
-                    icoEdit.inner.alpha(0.5f)
-                }
-                icoEdit.onClick {
-                    if (group.internalId != null) {
-                        ShatteredPixelDungeon.scene()
-                            .add(WndMessage(Messages.get(WndTrials::class.java, "edit_internal")))
-                        return@onClick
-                    }
-                    ShatteredPixelDungeon.scene().add(object : WndTextInput(
-                        Messages.get(WndTrials::class.java, "edit_title"),
-                        Messages.get(WndTrials::class.java, "edit_body", groupName, group.url),
-                        group.url,
-                        1024,
-                        false,
-                        Messages.get(WndTrials::class.java, "confirm"),
-                        Messages.get(WndTrials::class.java, "cancel"),
-                    ) {
-                        override fun onSelect(positive: Boolean, text: String?) {
-                            if (!positive || !validateUrl(text)) return
-
-                            group.url = text!!
-                            Trials.save()
-
-                            Trials.checkForUpdates() // TODO: individual updates?
-                        }
-                    })
-                }
-            }
-            withEnabled(group.updateError != null) {
-                appearingIconButton(Icons.WARNING.descriptor(), duration = 0.3f).onClick {
-                    ShatteredPixelDungeon.scene().add(
-                        WndError(group.updateError!!)
-                    )
-                }
-            }
-        }
-        verticalJustified {
-            withEnabled(!group.isUpdating) {
-                redButton(
-                    margins = RED_BUTTON_MARGINS.copy(top = 4),
-                    background = NinePatchDescriptor.Gradient(GRADIENT)
-                ) {
-                    val label = shrinkToFitLabel(groupName, 9)
-                    if (group.wantNotify) {
-                        label.widget.hardlight(
-                            ColorMath.interpolate(
-                                0xFFFFFF,
-                                Window.SHPX_COLOR,
-                                0.5f + sin((Game.timeTotal * 5).toDouble()).toFloat() / 2f
-                            )
-                        )
-                    } else {
-                        label.widget.resetColor()
-                    }
-                }.onClick {
-                    group.notificationShown()
-                    ShatteredPixelDungeon.scene().add(
-                        WndTrialsGroup(group)
-                    )
-                }
-            }
-        }
-    }
-}
-
 fun Ui.appearingIconButton(
     image: TextureDescriptor,
     show: Boolean? = null,
@@ -402,11 +430,12 @@ inline fun Ui.appearingIconButton(
 
         val res = WidgetResponse(img, UiResponse(allocated, imageId))
         highlightTouchedVisual(interaction, res, top.style().interactionAnimationDuration)
+        dimInactiveVisual(res)
         img
     }
 }
 
-private class WndTrialsGroup(val group: TrialGroup) : TcpdWindow() {
+private open class WndTrialsGroup(val group: TrialGroup) : TcpdWindow() {
     init {
         maxSize = Vec2(120, (PixelScene.uiCamera.height * 0.9f).toInt())
     }
@@ -446,27 +475,28 @@ private fun Ui.trialButton(trial: Trial) {
         }
 
         var ping by useState(trial) { false }
-        val doPing = ping;
         val pingController by useMemo(trial) { LoopingState() }
         val isSelected = Trials.curTrial === trial
         withEnabled(isSelected) {
-            appearingIconButton(
-                Icons.ENTER.descriptor(),
-                Trials.curTrial === trial,
-                easingDisappear = null
-            ) { button, progress ->
-                val x = pingController.animate(ping && progress >= 1f, 0.5f, 0f) { it }
-                button.angle = sin(20 * x) * (1 - x) * 30
-                ping = false
-            }.onClick {
-                Dungeon.hero = null
-                Dungeon.daily = false
-                Dungeon.dailyReplay = false
-                Dungeon.tcpdData = null
-                Dungeon.initSeed()
-                ActionIndicator.clearAction()
-                InterlevelScene.mode = InterlevelScene.Mode.DESCEND
-                Game.switchScene(InterlevelScene::class.java)
+            margins(Margins.only(top = 1)) {
+                appearingIconButton(
+                    Icons.ENTER.descriptor(),
+                    Trials.curTrial === trial,
+                    easingDisappear = null
+                ) { button, progress ->
+                    val x = pingController.animate(ping && progress >= 1f, 0.5f, 0f) { it }
+                    button.angle = sin(20 * x) * (1 - x) * 30
+                    ping = false
+                }.onClick {
+                    Dungeon.hero = null
+                    Dungeon.daily = false
+                    Dungeon.dailyReplay = false
+                    Dungeon.tcpdData = null
+                    Dungeon.initSeed()
+                    ActionIndicator.clearAction()
+                    InterlevelScene.mode = InterlevelScene.Mode.DESCEND
+                    Game.switchScene(InterlevelScene::class.java)
+                }
             }
         }
 
@@ -479,9 +509,11 @@ private fun Ui.trialButton(trial: Trial) {
                             trial.lockedClass?.let { heroClass ->
                                 image(TextureDescriptor.HeroClass(heroClass, 6))
                             }
-                            shrinkToFitLabel(trial.name, 9, 15)
+                            val res = shrinkToFitLabel(trial.name, 9, 15)
+                            dimInactiveText(res)
+                            res
                         }
-                        drawRedCheckbox(Trials.curTrial === trial, res.inner.response.rect)
+//                        drawRedCheckbox(Trials.curTrial === trial, res.inner.response.rect)
                     }
                 }.onClick {
                     if (isSelected) {

@@ -65,6 +65,7 @@ fun Ui.iconButton(image: TextureDescriptor): InteractiveResponse<Unit> {
         val img = image(image)
 
         highlightTouchedVisual(interaction, img, top().style().interactionAnimationDuration)
+        dimInactiveVisual(img)
     }
 }
 
@@ -117,8 +118,9 @@ fun Ui.redCheckbox(
 fun Ui.drawRedCheckbox(checked: Boolean, alignRect: Rect) {
     val ui = top();
     val space = ui.layout.getFullAvailableSpace()
+    val checkboxId = ui.nextAutoId();
     val image = ui.painter().drawImage(
-        ui.nextAutoId(), Pos2(0, 0), if (checked) {
+        checkboxId, Pos2(0, 0), if (checked) {
             Icons.CHECKED
         } else {
             Icons.UNCHECKED
@@ -128,7 +130,7 @@ fun Ui.drawRedCheckbox(checked: Boolean, alignRect: Rect) {
     image.y =
         ((alignRect.top() + (alignRect.height() - image.height) / 2) + 1)
     PixelScene.align(image)
-
+    dimInactiveVisual(WidgetResponse(image, UiResponse(Rect.ZERO, checkboxId)))
 }
 
 inline fun <T> Ui.redButton(
