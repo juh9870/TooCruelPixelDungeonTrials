@@ -6,6 +6,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Dewdrop
 import com.shatteredpixel.shatteredpixeldungeon.items.Item
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.ChaliceOfBlood
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.RatSkull
+import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.SaltCube
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBits
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBytes
@@ -79,7 +80,7 @@ enum class Modifier(
     TOXIC_WATER(38),
     CERTAINTY_OF_STEEL(39) {
         override fun _isItemBlocked(item: Item): Boolean {
-            return item is ChaliceOfBlood
+            return item is SaltCube
         }
     },
     PARADOX_LEVELGEN(40),
