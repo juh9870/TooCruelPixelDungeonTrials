@@ -171,9 +171,10 @@ class WndTrials : TcpdWindow() {
                 !it.wantNotify
             }))
             PaginatedList(
-                sortedGroups.size, 14, bodyBackground = NinePatchDescriptor.TextureId(
-                    GROUPS_LIST_BG_KEY, Margins.only(top = 1)
-                ), bodyMargins = Margins.only(top = 2, bottom = 2)
+                sortedGroups.size,
+                14,
+                bodyBackground = GROUPS_LIST_BG,
+                bodyMargins = Margins.only(top = 2, bottom = 2)
             ).show(this) { i ->
                 trialGroupButton(sortedGroups[i])
             }
@@ -382,21 +383,24 @@ private fun validateUrl(url: String?): Boolean {
     return true
 }
 
-private val GROUPS_LIST_BG_KEY by lazy {
-    val key = object {}
+private val GROUPS_LIST_BG_KEY: Any = object {}
+private val GROUPS_LIST_BG: NinePatchDescriptor =
+    NinePatchDescriptor.TextureId(GROUPS_LIST_BG_KEY, Margins.only(top = 1))
+    get() {
+        if (!TextureCache.contains(GROUPS_LIST_BG_KEY)) {
+            val tx = TextureCache.create(field, 1, 2)
 
-    val tx = TextureCache.create(key, 1, 2)
+            tx.filter(Texture.NEAREST, Texture.NEAREST)
+            tx.wrap(Texture.CLAMP, Texture.CLAMP)
+            val pm = tx.bitmap
 
-    tx.filter(Texture.NEAREST, Texture.NEAREST)
-    tx.wrap(Texture.CLAMP, Texture.CLAMP)
-    val pm = tx.bitmap
+            // RGBA format here
+            pm.drawPixel(0, 0, 0X000000FFu.toInt())
+            pm.drawPixel(0, 1, 0XC5BC9FFFu.toInt())
+        }
 
-    // RGBA format here
-    pm.drawPixel(0, 0, 0X000000FFu.toInt())
-    pm.drawPixel(0, 1, 0XC5BC9FFFu.toInt())
-
-    return@lazy key
-}
+        return field
+    }
 
 private val GRADIENT = intArrayOf(
     0xFF6A675Cu.toInt(),
