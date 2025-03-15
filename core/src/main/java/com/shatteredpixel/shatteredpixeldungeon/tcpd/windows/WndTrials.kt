@@ -384,11 +384,10 @@ private fun validateUrl(url: String?): Boolean {
 }
 
 private val GROUPS_LIST_BG_KEY: Any = object {}
-private val GROUPS_LIST_BG: NinePatchDescriptor =
-    NinePatchDescriptor.TextureId(GROUPS_LIST_BG_KEY, Margins.only(top = 1))
+private val GROUPS_LIST_BG: NinePatchDescriptor
     get() {
         if (!TextureCache.contains(GROUPS_LIST_BG_KEY)) {
-            val tx = TextureCache.create(field, 1, 2)
+            val tx = TextureCache.create(GROUPS_LIST_BG_KEY, 1, 2)
 
             tx.filter(Texture.NEAREST, Texture.NEAREST)
             tx.wrap(Texture.CLAMP, Texture.CLAMP)
@@ -399,7 +398,7 @@ private val GROUPS_LIST_BG: NinePatchDescriptor =
             pm.drawPixel(0, 1, 0XC5BC9FFFu.toInt())
         }
 
-        return field
+        return NinePatchDescriptor.TextureId(GROUPS_LIST_BG_KEY, Margins.only(top = 1))
     }
 
 private val GRADIENT = intArrayOf(
