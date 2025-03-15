@@ -5,6 +5,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.WellWater
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
+import com.shatteredpixel.shatteredpixeldungeon.items.Generator
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap
 import com.shatteredpixel.shatteredpixeldungeon.items.Item
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.Key
@@ -13,6 +14,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level
+import com.shatteredpixel.shatteredpixeldungeon.levels.Level.Feeling
 import com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room
@@ -51,6 +53,9 @@ fun Level.postCreateHook() {
     }
     if (Modifier.LOFT.active()) {
         applyLoft()
+    }
+    if (Modifier.LOOT_PARADISE.active()) {
+        applyLootParadise()
     }
 }
 
@@ -144,11 +149,15 @@ private fun RegularLevel.placeItemPos(roomType: Class<out Room?>? = null): Int {
     val cell: Int =
         if (roomType != null) randomDropCellExposedHook(roomType) else randomDropCellExposedHook()
 
+    furrowDroppedItemPos(cell)
+    return cell
+}
+
+private fun Level.furrowDroppedItemPos(cell: Int) {
     if (map[cell] == Terrain.HIGH_GRASS || map[cell] == Terrain.FURROWED_GRASS) {
         map[cell] = Terrain.GRASS
         losBlocking[cell] = false
     }
-    return cell
 }
 
 private fun Level.applySecondTry() {
@@ -204,6 +213,31 @@ private fun Level.applyLoft() {
     cleanWalls()
 }
 
+private fun Level.applyLootParadise() {
+    val validCells = mutableListOf<Int>()
+    for (i in 0 until length()) {
+        if(!solid[i] && !pit[i]) {
+            validCells.add(i)
+        }
+    }
+    for (t in transitions) {
+        validCells.remove(t.cell())
+    }
+    Random.shuffle(validCells)
+    val amount = defaultNItems() * 10
+    for (i in 0 until amount) {
+        if (validCells.size <= i) break
+        val cell = validCells[i]
+
+        val toDrop =
+            Generator.random() ?: continue
+        furrowDroppedItemPos(cell)
+        drop(toDrop, cell)
+    }
+
+    var nItems = (this as RegularLevel)
+}
+
 fun Level.destroyWall(cell: Int) {
     val terrain = map[cell]
     if (terrain == Terrain.WALL ||
@@ -228,4 +262,15 @@ fun Level.strongDestroy(cell: Int, replaceWith: Int = Terrain.EMBERS) {
         }
     }
     destroy(cell)
+}
+
+
+fun Level.defaultNItems(): Int {
+    // drops 3/4/5 items 60%/30%/10% of the time
+    var nItems = 3 + Random.chances(floatArrayOf(6f, 3f, 1f))
+
+    if (feeling == Feeling.LARGE) {
+        nItems += 2
+    }
+    return nItems
 }
