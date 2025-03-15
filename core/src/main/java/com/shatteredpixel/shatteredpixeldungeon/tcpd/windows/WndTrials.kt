@@ -1,8 +1,10 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.windows
 
 import com.shatteredpixel.shatteredpixeldungeon.Chrome
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
+import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Trial
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.TrialGroup
@@ -40,6 +42,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.shrinkToFitLabe
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.verticalJustified
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.easeInOutBack
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.easeOutBack
+import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndError
@@ -82,12 +85,13 @@ class WndTrials : TcpdWindow() {
                     }.onClick {
                         Trials.curTrial = Trial.CUSTOM
                         val modifiers = Trial.CUSTOM.getModifiers()!!
-                        ShatteredPixelDungeon.scene().add(object : WndModifiers(modifiers, true) {
-                            override fun onBackPressed() {
-                                super.onBackPressed()
-                                Trial.CUSTOM.setModifiers(modifiers)
-                            }
-                        })
+                        ShatteredPixelDungeon.scene()
+                            .add(object : WndModifiers(modifiers, Trial.CUSTOM, true) {
+                                override fun onBackPressed() {
+                                    super.onBackPressed()
+                                    Trial.CUSTOM.setModifiers(modifiers)
+                                }
+                            })
                     }
                 }
                 redButton(
@@ -358,25 +362,43 @@ private fun Ui.trialGroupButton(group: TrialGroup, editMode: Boolean) {
     }
 }
 
-@Suppress("NAME_SHADOWING")
 fun Ui.appearingIconButton(
     image: TextureDescriptor,
     show: Boolean? = null,
-    duration: Float = 0.2f
+    duration: Float = 0.2f,
+    easingAppear: ((Float) -> Float)? = ::easeOutBack,
+    easingDisappear: ((Float) -> Float)? = ::easeOutBack
+) = appearingIconButton(image, show, duration, easingAppear, easingDisappear) { _, _ -> }
+
+@Suppress("NAME_SHADOWING")
+inline fun Ui.appearingIconButton(
+    image: TextureDescriptor,
+    show: Boolean? = null,
+    duration: Float = 0.2f,
+    noinline easingAppear: ((Float) -> Float)? = ::easeOutBack,
+    noinline easingDisappear: ((Float) -> Float)? = ::easeOutBack,
+    crossinline extraAnimation: (Image, Float) -> Unit
 ): InteractiveResponse<Image> {
     val show = show ?: top().isEnabled()
     return customButton { interaction ->
         val top = top()
-        val showAnim = ctx().getOrPutMemory(top.id.with("showAnim")) { AnimationState(show) }
+        val showAnim = ctx().getOrPutMemory(top.id.with("showAnim")) {
+            AnimationState(show).also {
+                it.easingUp = easingAppear
+                it.easingDown = easingDisappear
+            }
+        }
         val imageId = top.nextAutoId()
 
-        val progress = showAnim.animate(show, duration) { easeOutBack(it) }
+        val progress = showAnim.animate(show, duration) { it }
         val imageSize = image.size()
         val allocated = top.allocateSize(Vec2((imageSize.x * progress).roundToInt(), imageSize.y))
 
         val img = top.painter().drawImage(imageId, allocated.min, image)
         img.scale.set(progress)
         img.origin.set(img.width / 2f * progress, img.height / 2f)
+
+        extraAnimation(img, progress)
 
         val res = WidgetResponse(img, UiResponse(allocated, imageId))
         highlightTouchedVisual(interaction, res, top.style().interactionAnimationDuration)
@@ -411,7 +433,7 @@ private fun Ui.trialButton(trial: Trial) {
             if (valid) {
                 iconButton(Icons.INFO.descriptor()).onClick {
                     ShatteredPixelDungeon.scene().add(
-                        WndModifiers(trial.getModifiers()!!, false)
+                        WndModifiers(trial.getModifiers()!!, trial, false)
                     )
                 }
             } else {
@@ -423,14 +445,37 @@ private fun Ui.trialButton(trial: Trial) {
             }
         }
 
+        var ping by useState(trial) { false }
+        val doPing = ping;
+        val pingController by useMemo(trial) { LoopingState() }
+        val isSelected = Trials.curTrial === trial
+        withEnabled(isSelected) {
+            appearingIconButton(
+                Icons.ENTER.descriptor(),
+                Trials.curTrial === trial,
+                easingDisappear = null
+            ) { button, progress ->
+                val x = pingController.animate(ping && progress >= 1f, 0.5f, 0f) { it }
+                button.angle = sin(20 * x) * (1 - x) * 30
+                ping = false
+            }.onClick {
+                Dungeon.hero = null
+                Dungeon.daily = false
+                Dungeon.dailyReplay = false
+                Dungeon.tcpdData = null
+                Dungeon.initSeed()
+                ActionIndicator.clearAction()
+                InterlevelScene.mode = InterlevelScene.Mode.DESCEND
+                Game.switchScene(InterlevelScene::class.java)
+            }
+        }
+
         verticalJustified {
             withEnabled(valid) {
                 redButton(margins = Margins.ZERO) {
                     horizontal {
-                        val redCheckboxWidth by useMemo(Unit) {
-                            Icons.CHECKED.get().width
-                        }
-                        val res = margins(Margins(3, 0, 1 + redCheckboxWidth.roundToInt(), 0)) {
+                        val redCheckboxWidth = Icons.CHECKED.descriptor().size().x
+                        val res = margins(Margins(3, 0, 1 + redCheckboxWidth, 0)) {
                             trial.lockedClass?.let { heroClass ->
                                 image(TextureDescriptor.HeroClass(heroClass, 6))
                             }
@@ -439,7 +484,11 @@ private fun Ui.trialButton(trial: Trial) {
                         drawRedCheckbox(Trials.curTrial === trial, res.inner.response.rect)
                     }
                 }.onClick {
-                    Trials.curTrial = trial
+                    if (isSelected) {
+                        ping = true
+                    } else {
+                        Trials.curTrial = trial
+                    }
                 }
             }
         }

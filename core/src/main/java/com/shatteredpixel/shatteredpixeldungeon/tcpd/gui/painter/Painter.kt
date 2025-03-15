@@ -21,6 +21,7 @@ import com.watabou.noosa.Image
 import com.watabou.noosa.NinePatch
 import com.watabou.noosa.Visual
 import com.watabou.noosa.ui.Component
+import kotlin.math.roundToInt
 
 class Painter internal constructor(
     private val group: Group?,
@@ -257,7 +258,6 @@ internal sealed class VisualElement {
                         }
                     }
                     block.setPos(rect.min.x.toFloat(), rect.min.y.toFloat())
-                    block.resetColor()
                     return block
                 }
                 val block = PixelScene.renderTextBlock(text, size)
@@ -307,7 +307,7 @@ sealed interface TextureDescriptor {
     fun size(): Vec2 {
         return TextureSizeCache.getOrPut(this) {
             val image = asImage()
-            Vec2(image.width.toInt(), image.height.toInt())
+            Vec2(image.width.roundToInt(), image.height.roundToInt())
         }
     }
 }

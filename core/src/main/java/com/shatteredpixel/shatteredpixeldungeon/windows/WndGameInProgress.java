@@ -76,7 +76,7 @@ public class WndGameInProgress extends Window {
 			RedButton btnChallenges = new RedButton( Messages.get(this, "challenges") ) {
 				@Override
 				protected void onClick() {
-					Game.scene().add( new WndModifiers( info.tcpdData.getModifiers(), false ) );
+					Game.scene().add( new WndModifiers( info.tcpdData ) );
 				}
 			};
 			btnChallenges.icon(Icons.get(Icons.CHALLENGE_COLOR));

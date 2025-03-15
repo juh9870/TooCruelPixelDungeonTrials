@@ -120,7 +120,7 @@ public class MenuPane extends Component {
 			challengeButton = new Button(){
 				@Override
 				protected void onClick() {
-					GameScene.show(new WndModifiers(Dungeon.tcpdData.getModifiers(), false));
+					GameScene.show(new WndModifiers(Dungeon.tcpdData));
 				}
 
 				@Override

@@ -3,9 +3,11 @@ package com.shatteredpixel.shatteredpixeldungeon.tcpd
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Net
 import com.shatteredpixel.shatteredpixeldungeon.Assets
+import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
+import com.shatteredpixel.shatteredpixeldungeon.scenes.HeroSelectScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBits
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.decodeBase58
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.trimEnd
@@ -59,6 +61,10 @@ class Trial() : Bundlable {
         if (lockedClass != other.lockedClass) return false
 
         return true
+    }
+
+    fun copy(): Trial {
+        return Trial(name, modifiers.copyOf(), lockedClass)
     }
 
     fun isValid(): Boolean {
@@ -170,8 +176,8 @@ class TrialGroup() : Bundlable {
         wantNotify = true
     }
 
-    fun notificationShown(){
-        if(wantNotify) {
+    fun notificationShown() {
+        if (wantNotify) {
             wantNotify = false
             Trials.save()
         }
@@ -206,10 +212,10 @@ class TrialGroup() : Bundlable {
         }
         this.trials = trials
         this.version = bundle.getInt(VERSION)
-        if(bundle.contains(INTERNAL_ID)) {
+        if (bundle.contains(INTERNAL_ID)) {
             internalId = bundle.getInt(INTERNAL_ID)
         }
-        if(bundle.contains(WANT_NOTIFY)) {
+        if (bundle.contains(WANT_NOTIFY)) {
             wantNotify = bundle.getBoolean(WANT_NOTIFY)
         }
     }
@@ -316,6 +322,17 @@ class Trials : Bundlable {
         }
 
         var curTrial: Trial? = null
+            set(value) {
+                field = value
+                if (value?.lockedClass != null && value.lockedClass != GamesInProgress.selectedClass) {
+                    val scene = ShatteredPixelDungeon.scene()
+                    if (scene is HeroSelectScene) {
+                        scene.setSelectedHero(value.lockedClass!!)
+                    } else {
+                        GamesInProgress.selectedClass = value.lockedClass!!
+                    }
+                }
+            }
 
         fun save() {
             val trials = trials ?: return
@@ -364,7 +381,7 @@ class Trials : Bundlable {
 
             this.trials = trials
 
-            if(anyUpdated) {
+            if (anyUpdated) {
                 trials.groups.sortBy { it.internalId }
                 save()
             }
@@ -386,6 +403,21 @@ class Trials : Bundlable {
                 save()
             }
             return true
+        }
+
+        fun heroClassAvailable(cl: HeroClass): Boolean {
+            val locked = curTrial?.lockedClass
+            return locked == null || locked == cl
+        }
+
+        fun heroClassLockedMsg(wantClass: HeroClass): String {
+            return Messages.get(
+                Trials::class.java,
+                "hero_class_locked",
+                curTrial!!.name,
+                curTrial!!.lockedClass!!.title(),
+                wantClass.title()
+            )
         }
 
         fun checkForUpdates() {

@@ -83,6 +83,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingSt
 import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifiers;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Trials;
 import com.watabou.utils.DeviceCompat;
 
 public enum HeroClass {
@@ -346,7 +347,7 @@ public enum HeroClass {
 	}
 	
 	public boolean isUnlocked(){
-		if (true) return true;
+		if(true) return Trials.Companion.heroClassAvailable(this);
 		//always unlock on debug builds
 		if (DeviceCompat.isDebug()) return true;
 

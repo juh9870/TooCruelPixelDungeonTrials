@@ -259,13 +259,13 @@ public class SPDSettings extends GameSettings {
 		return getInt( KEY_LAST_CLASS, 0, 0, 3 );
 	}
 	
-	public static void challenges( Modifiers value ) {
-		put( KEY_CHALLENGES, value.serializeToString() );
-	}
-	
-	public static Modifiers challenges() {
-		return Modifiers.Companion.deserializeFromString(getString( KEY_CHALLENGES, "" ));
-	}
+//	public static void challenges( Modifiers value ) {
+//		put( KEY_CHALLENGES, value.serializeToString() );
+//	}
+//
+//	public static Modifiers challenges() {
+//		return Modifiers.Companion.deserializeFromString(getString( KEY_CHALLENGES, "" ));
+//	}
 
 	public static void customSeed( String value ){
 		put( KEY_CUSTOM_SEED, value );

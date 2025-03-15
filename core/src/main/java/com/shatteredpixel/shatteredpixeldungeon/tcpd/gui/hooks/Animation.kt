@@ -8,16 +8,22 @@ import kotlin.math.sign
 class AnimationState(startingState: Boolean) {
     var state: Boolean = startingState
     var progress: Float = targetForState(startingState)
+    var easingUp: ((Float) -> Float)? = null
+    var easingDown: ((Float) -> Float)? = null
 
-    inline fun<T> animate(
+    inline fun <T> animate(
         targetState: Boolean,
         durationSeconds: Float,
-        crossinline animation: (progress: Float) -> T):T {
+        crossinline animation: (progress: Float) -> T
+    ): T {
         val target = targetForState(targetState)
 
+        var easing: ((Float) -> Float)? = null
         var progress = this.progress
-        if(progress != target) {
+        if (progress != target) {
             val step = (1f / durationSeconds) * Game.elapsed * sign(target - progress)
+
+            easing = if(step > 0) easingUp else easingDown
 
             progress = GameMath.gate(0f, progress + step, 1f)
         }
@@ -27,7 +33,8 @@ class AnimationState(startingState: Boolean) {
         }
 
         this.progress = progress
-        return animation(progress)
+
+        return animation(easing?.let { it(progress) } ?: progress)
     }
 
     fun done(targetState: Boolean): Boolean {

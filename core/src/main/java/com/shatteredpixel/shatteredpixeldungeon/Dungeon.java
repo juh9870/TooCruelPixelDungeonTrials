@@ -76,6 +76,7 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.TCPDData;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Trials;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.DungeonHooksKt;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar;
@@ -243,7 +244,7 @@ public class Dungeon {
 	public static void init() {
 
 		initialVersion = version = Game.versionCode;
-		tcpdData = new TCPDData();
+		tcpdData = new TCPDData(Trials.Companion.getCurTrial());
 		mobsToChampion = -1;
 
 		Actor.clear();
