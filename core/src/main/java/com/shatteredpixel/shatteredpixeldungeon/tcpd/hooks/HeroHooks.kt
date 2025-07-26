@@ -3,11 +3,13 @@ package com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AscensionChallenge
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter
+import com.shatteredpixel.shatteredpixeldungeon.effects.FloatingText
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck
 import com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows
@@ -29,6 +31,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.GrassIgniter
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Insomnia
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Intoxication
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.InvisibleResting
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.OnXpGainBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Pandemonium
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.PerfectInformation
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.PermaBlind
@@ -36,8 +39,10 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.PrisonExpress
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RacingTheDeath
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RetieredBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.SafetyBuffer
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.SkeletonCrewBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.SteelBody
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.SwitchLevelBuff
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.XpMultiplierBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.forEachBuff
 import com.watabou.noosa.tweeners.Delayer
 import com.watabou.noosa.tweeners.Tweener.Listener
@@ -95,6 +100,9 @@ fun Hero.heroLiveHook() {
     }
     if (Modifier.SAFETY_BUFFER.active()) {
         Buff.affect(this, SafetyBuffer::class.java)
+    }
+    if (Modifier.SKELETON_CREW.active()) {
+        Buff.affect(this, SkeletonCrewBuff::class.java)
     }
 }
 
@@ -235,4 +243,32 @@ fun Hero.subClassPicked() {
         }
         break
     }
+}
+
+@Suppress("NAME_SHADOWING")
+fun Hero.earnExpHook(
+    exp: Int,
+    source: Any?,
+): Int {
+    var fExp = exp.toFloat()
+
+    forEachBuff<XpMultiplierBuff> {
+        fExp *= it.xpMultiplier(source)
+    }
+
+    val newExp = fExp.toInt()
+
+    if(source !is AscensionChallenge) {
+        if (newExp > exp) {
+            sprite.showStatusWithIcon(CharSprite.POSITIVE, "$exp", FloatingText.EXPERIENCE)
+        } else {
+            sprite.showStatusWithIcon(CharSprite.NEGATIVE, "-$exp", FloatingText.EXPERIENCE)
+        }
+    }
+
+    forEachBuff<OnXpGainBuff> {
+        it.onXpGained(newExp, source)
+    }
+
+    return newExp
 }

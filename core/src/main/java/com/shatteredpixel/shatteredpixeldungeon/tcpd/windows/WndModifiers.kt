@@ -162,6 +162,34 @@ private fun Ui.modifierBtn(
                         )
                     desc = Messages.get(WndModifiers::class.java, "modifier_tags", desc, tagsDesc)
                 }
+                if (modifier.dependencies.isNotEmpty()) {
+                    val dependenciesDesc =
+                        modifier.dependencies.joinToString(
+                            separator = ", ",
+                            transform = { Modifier.ALL[it].localizedName() },
+                        )
+                    desc =
+                        Messages.get(
+                            WndModifiers::class.java,
+                            "modifier_dependencies",
+                            desc,
+                            dependenciesDesc,
+                        )
+                }
+                if (modifier.conflicts().isNotEmpty()) {
+                    val conflictsDesc =
+                        modifier.conflicts().joinToString(
+                            separator = ", ",
+                            transform = { it.localizedName() },
+                        )
+                    desc =
+                        Messages.get(
+                            WndModifiers::class.java,
+                            "modifier_conflicts",
+                            desc,
+                            conflictsDesc,
+                        )
+                }
                 ShatteredPixelDungeon.scene().add(
                     WndMessage(desc),
                 )

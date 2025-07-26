@@ -13,6 +13,7 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.TextureDescriptor
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.descriptor
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.UnorderedPair
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBits
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBytes
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.assertEq
@@ -200,39 +201,17 @@ enum class Modifier(
     IN_YOUR_FACE(82, tags = arrayOf(Tag.ENEMY, Tag.LEVEL)),
     PERFECT_INFORMATION(84, tags = arrayOf(Tag.POSITIVE, Tag.HERO)),
     SAFETY_BUFFER(85, tags = arrayOf(Tag.POSITIVE)),
+    SKELETON_CREW(86, tags = arrayOf(Tag.ENEMY, Tag.LEVEL, Tag.HERO)) {
+        override fun _nMobsMult(): Float = 0.5f
+    },
+    ABANDONED_SHIP(
+        87,
+        tags = arrayOf(Tag.ENEMY, Tag.LEVEL),
+        dependencies = arrayOf(SKELETON_CREW.id),
+    ) {
+        override fun _nMobsMult(): Float = 0f
+    },
     ;
-
-    companion object {
-        val ALL: Array<Modifier> = Modifier.entries.sortedBy { it.id }.toTypedArray()
-
-        init {
-            if (ALL.last().id != ALL.size - 1) {
-                val seen = mutableMapOf<Int, Modifier>()
-                for (mod in ALL) {
-                    val existing = seen[mod.id]
-                    if (existing != null) {
-                        throw IllegalStateException("Modifier id ${mod.id} is in use by both ${mod.name} and ${existing.name}")
-                    }
-                    seen[mod.id] = mod
-                }
-                throw IllegalStateException("Modifier IDs contain gaps!")
-            }
-        }
-
-        fun fromVanilla(challengeId: Int): Modifier =
-            when (challengeId) {
-                Challenges.NO_FOOD -> ON_DIET
-                Challenges.NO_ARMOR -> FAITH_ARMOR
-                Challenges.NO_HEALING -> PHARMACOPHOBIA
-                Challenges.NO_HERBALISM -> BARREN_LAND
-                Challenges.SWARM_INTELLIGENCE -> SWARM_INTELLIGENCE
-                Challenges.DARKNESS -> DARKNESS
-                Challenges.NO_SCROLLS -> FORBIDDEN_RUNES
-                Challenges.CHAMPION_ENEMIES -> CHAMPION_ENEMIES
-                Challenges.STRONGER_BOSSES -> STRONGER_BOSSES
-                else -> throw IllegalArgumentException("Unknown vanilla challenge id: $challengeId")
-            }
-    }
 
     val tags = Tag.process(dependencies.isNotEmpty(), tags)
     private val localizationKey = locString ?: name.lowercase()
@@ -259,6 +238,62 @@ enum class Modifier(
     open fun _nTrapsMult(): Float = 1f
 
     fun active() = Dungeon.tcpdData?.modifiers?.isEnabled(this) ?: false
+
+    fun conflicts(): List<Modifier> =
+        conflicts.getOrPut(this) {
+            mutableListOf()
+        }
+
+    companion object {
+        val ALL: Array<Modifier> = Modifier.entries.sortedBy { it.id }.toTypedArray()
+        private val conflicts = mutableMapOf<Modifier, MutableList<Modifier>>()
+
+        init {
+            if (ALL.last().id != ALL.size - 1) {
+                val seen = mutableMapOf<Int, Modifier>()
+                for (mod in ALL) {
+                    val existing = seen[mod.id]
+                    if (existing != null) {
+                        throw IllegalStateException("Modifier id ${mod.id} is in use by both ${mod.name} and ${existing.name}")
+                    }
+                    seen[mod.id] = mod
+                }
+                throw IllegalStateException("Modifier IDs contain gaps!")
+            }
+
+            val conflictsSet = mutableSetOf<UnorderedPair<Modifier>>()
+
+            fun addConflict(
+                a: Modifier,
+                b: Modifier,
+            ) {
+                if (conflictsSet.add(UnorderedPair(a, b))) {
+                    conflicts.getOrPut(a) { mutableListOf() }.add(b)
+                    conflicts.getOrPut(b) { mutableListOf() }.add(a)
+                } else {
+                    throw IllegalStateException(
+                        "Conflict between ${a.name} and ${b.name} already exists!",
+                    )
+                }
+            }
+
+            addConflict(ABANDONED_SHIP, HORDE)
+        }
+
+        fun fromVanilla(challengeId: Int): Modifier =
+            when (challengeId) {
+                Challenges.NO_FOOD -> ON_DIET
+                Challenges.NO_ARMOR -> FAITH_ARMOR
+                Challenges.NO_HEALING -> PHARMACOPHOBIA
+                Challenges.NO_HERBALISM -> BARREN_LAND
+                Challenges.SWARM_INTELLIGENCE -> SWARM_INTELLIGENCE
+                Challenges.DARKNESS -> DARKNESS
+                Challenges.NO_SCROLLS -> FORBIDDEN_RUNES
+                Challenges.CHAMPION_ENEMIES -> CHAMPION_ENEMIES
+                Challenges.STRONGER_BOSSES -> STRONGER_BOSSES
+                else -> throw IllegalArgumentException("Unknown vanilla challenge id: $challengeId")
+            }
+    }
 }
 
 enum class Tag(
@@ -395,6 +430,9 @@ class Modifiers() : Bundlable {
 
         modifier.dependencies.forEach {
             enable(Modifier.ALL[it])
+        }
+        for (conflict in modifier.conflicts()) {
+            disable(conflict)
         }
     }
 

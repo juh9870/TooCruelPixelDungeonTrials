@@ -122,3 +122,14 @@ interface SwitchLevelBuff {
 interface DamageIconSource {
     fun damageIcon(): Int
 }
+
+interface OnXpGainBuff {
+    fun onXpGained(
+        exp: Int,
+        source: Any?,
+    )
+}
+
+interface XpMultiplierBuff {
+    fun xpMultiplier(source: Any?): Float
+}
