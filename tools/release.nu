@@ -82,7 +82,7 @@ def main [kind: string@options = "", secondaryKind?: string@mainOptions = "patch
             }
         }
         "release" => {
-            if ($version.alpha == "") and ($version.beta == "") or ($version.rc == "") {
+            if ($version.alpha == "") and ($version.beta == "") and ($version.rc == "") {
                 error make -u {msg: "Kind `release` can only be used when alpha, beta or rc is currently set"}
             }
             $version = ($version | update alpha "")
