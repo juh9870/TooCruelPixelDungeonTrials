@@ -110,7 +110,9 @@ private fun Ui.drawModifiers(
                 FilterOptions(SortType.Default, false)
             }
 
-        filterBar(sort)
+        if (editable) {
+            filterBar(sort)
+        }
 
         var resetPage = false
         val modifiersList by useMemo(sort.get()) {
