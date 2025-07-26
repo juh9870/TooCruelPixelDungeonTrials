@@ -6,26 +6,30 @@
 
 > Released on ReleaseDate
 
+## [0.16.0]
+
+> Released on 2025-07-27
+
 ### Added
 
-- Modifier dependencies now show up in modifier description (by juh9870)
-- Boss Rush modifier (by juh9870)
-- Tier Up modifier (by juh9870)
-- Skeleton Crew and Abandoned Ship modifiers (by juh9870)
-- Infertility and Hydra modifiers (by juh9870)
-- Protected Goods modifier (by juh9870)
-- Perfect Information and Thoughtless modifiers (by juh9870)
-- Uninspired to Learn modifier (by juh9870)
+- Modifier dependencies now show up in modifier description
+- Boss Rush modifier
+- Tier Up modifier
+- Skeleton Crew and Abandoned Ship modifiers
+- Infertility and Hydra modifiers
+- Protected Goods modifier
+- Perfect Information and Thoughtless modifiers
+- Uninspired to Learn modifier
 
 ### Changed
 
-- Horde now affects floor 1 mobs (by juh9870)
-- Modifier sort/filter bar is hidden in non-editable modifiers lists (by juh9870)
-- Enabled modifiers are no longer filtered out (by juh9870)
+- Horde now affects floor 1 mobs
+- Modifier sort/filter bar is hidden in non-editable modifiers lists
+- Enabled modifiers are no longer filtered out
 
 ### Fixed
 
-- Trials groups not updating properly after checking for updates (by juh9870)
+- Trials groups not updating properly after checking for updates
 
 ## [0.16.0-beta.1]
 
@@ -422,7 +426,8 @@
 - Project seeded on top of Shattered Pixel Dungeon v3.0.0
 
 <!-- next-url -->
-[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.16.0-beta.1...HEAD
+[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.16.0...HEAD
+[0.16.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.16.0-beta.1...TCPD-0.16.0
 [0.16.0-beta.1]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.15.1...TCPD-0.16.0-beta.1
 [0.15.1]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.15.0...TCPD-0.15.1
 [0.15.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.14.1...TCPD-0.15.0
