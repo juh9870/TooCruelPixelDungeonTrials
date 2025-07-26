@@ -6,6 +6,10 @@
 
 > Released on ReleaseDate
 
+### Fixed
+
+- Thoughtless can be bypassed by dropping items into chasms (by juh9870)
+
 ## [0.16.0]
 
 > Released on 2025-07-27
