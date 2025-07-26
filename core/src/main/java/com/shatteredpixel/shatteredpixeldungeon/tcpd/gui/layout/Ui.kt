@@ -94,7 +94,7 @@ class Ui(
         id: UiId,
         preallocated: Boolean = false,
     ): UiResponse {
-        val removed = stack.removeLast()
+        val removed = stack.removeAt(stack.lastIndex)
         if (removed.id != id) {
             throw IllegalStateException("Popped layout with wrong ID: ${removed.id} != $id")
         }
