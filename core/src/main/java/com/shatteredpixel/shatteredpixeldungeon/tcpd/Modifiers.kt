@@ -126,6 +126,7 @@ enum class Modifier(
     PARADOX_LEVELGEN(40, tags = arrayOf(Tag.LEVEL, Tag.SILLY)),
     RETIERED(41, tags = arrayOf(Tag.ITEM)),
     UNTIERED(42, dependencies = arrayOf(RETIERED.id), tags = arrayOf(Tag.HARD, Tag.ITEM, Tag.RNG)),
+    TIER_UP(88, dependencies = arrayOf(UNTIERED.id), tags = arrayOf(Tag.ITEM, Tag.BOSS)),
     UNSTABLE_ACCESSORIES(43, tags = arrayOf(Tag.SILLY, Tag.ITEM, Tag.RNG, Tag.HERO)),
     PANDEMONIUM(44, tags = arrayOf(Tag.SILLY, Tag.ITEM, Tag.RNG, Tag.HERO)),
     BARRIER_BREAKER(45, tags = arrayOf(Tag.HERO)),
@@ -211,6 +212,7 @@ enum class Modifier(
     ) {
         override fun _nMobsMult(): Float = 0f
     },
+    // Next ID: 89
     ;
 
     val tags = Tag.process(dependencies.isNotEmpty(), tags)

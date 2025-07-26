@@ -133,3 +133,7 @@ interface OnXpGainBuff {
 interface XpMultiplierBuff {
     fun xpMultiplier(source: Any?): Float
 }
+
+interface OnBossSlainBuff {
+    fun onBossSlain()
+}

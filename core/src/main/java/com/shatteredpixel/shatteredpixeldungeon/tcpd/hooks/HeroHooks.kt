@@ -31,6 +31,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.GrassIgniter
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Insomnia
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Intoxication
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.InvisibleResting
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.OnBossSlainBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.OnXpGainBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Pandemonium
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.PerfectInformation
@@ -258,7 +259,7 @@ fun Hero.earnExpHook(
 
     val newExp = fExp.toInt()
 
-    if(source !is AscensionChallenge) {
+    if (source !is AscensionChallenge) {
         if (newExp > exp) {
             sprite.showStatusWithIcon(CharSprite.POSITIVE, "$exp", FloatingText.EXPERIENCE)
         } else {
@@ -271,4 +272,10 @@ fun Hero.earnExpHook(
     }
 
     return newExp
+}
+
+fun Hero.onBossSlain() {
+    forEachBuff<OnBossSlainBuff> {
+        it.onBossSlain()
+    }
 }

@@ -12,13 +12,16 @@ import com.watabou.utils.Bundlable
 import com.watabou.utils.Bundle
 import com.watabou.utils.Random
 
-class RetieredBuff : Buff() {
+class RetieredBuff :
+    Buff(),
+    OnBossSlainBuff {
     init {
         // act right after hero to process new weapons
         actPriority = HERO_PRIO - 1
     }
 
     private var tiers: TiersMap = TiersMap()
+    private var universalBonus: Int = 0
 
     override fun attachTo(target: Char?): Boolean {
         if (target !is Hero) {
@@ -52,31 +55,45 @@ class RetieredBuff : Buff() {
             var tiersDeducted = 0
             if (item is MeleeWeapon) {
                 val originalTier = item.tier
-                item.tier = tiers.tierFor(item.javaClass, item.tier)
+                item.tier = tiers.tierFor(item.javaClass, item.tier) + universalBonus
                 tiersDeducted = originalTier - item.tier
             } else if (item is MissileWeapon) {
                 val originalTier = item.tier
-                item.tier = tiers.tierFor(item.javaClass, item.tier)
+                item.tier = tiers.tierFor(item.javaClass, item.tier) + universalBonus
                 tiersDeducted = originalTier - item.tier
             }
             if (untiered && tiersDeducted > 0) {
-                item.level(item.level() + tiersDeducted)
+                // universal bonus increases the tier, resulting in less
+                // upgraded items on higher floors, so add it to keep it
+                // consistent
+                item.level(item.level() + tiersDeducted + universalBonus)
             }
         }
+    }
+
+    override fun onBossSlain() {
+        if (!Modifier.TIER_UP.active() || target !is Hero) return
+        universalBonus += 1
+        processInventory(target as Hero)
     }
 
     override fun storeInBundle(bundle: Bundle) {
         super.storeInBundle(bundle)
         bundle.put(TIERS, tiers)
+        bundle.put(UNIVERSAL_BONUS, universalBonus)
     }
 
     override fun restoreFromBundle(bundle: Bundle) {
         super.restoreFromBundle(bundle)
         tiers = bundle.get(TIERS) as TiersMap
+        if (bundle.contains(UNIVERSAL_BONUS)) {
+            universalBonus = bundle.getInt(UNIVERSAL_BONUS)
+        }
     }
 
     companion object {
         private const val TIERS = "tiers"
+        private const val UNIVERSAL_BONUS = "universal_bonus"
     }
 
     class TiersMap : Bundlable {
