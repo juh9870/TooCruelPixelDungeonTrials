@@ -4,6 +4,8 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon
 import com.shatteredpixel.shatteredpixeldungeon.Statistics
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
+import com.shatteredpixel.shatteredpixeldungeon.items.Heap
+import com.shatteredpixel.shatteredpixeldungeon.items.Item
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level
@@ -316,6 +318,23 @@ fun Level.activateTransitionHook(
         return Thoughtless.confirmAffectedItems(hero, transition)
     }
     return true
+}
+
+// Returns true if item was handled by the hook and should not be dropped normally
+fun Level.chasmItemDropHook(
+    heap: Heap,
+    item: Item,
+    cell: Int,
+): Boolean {
+    if (Modifier.THOUGHTLESS.active()) {
+        if (Thoughtless.isItemAffected(item)) {
+            Heap.burnFX(cell)
+            heap.destroy()
+            return true
+        }
+    }
+
+    return false
 }
 
 fun beforeTransitionHook() {

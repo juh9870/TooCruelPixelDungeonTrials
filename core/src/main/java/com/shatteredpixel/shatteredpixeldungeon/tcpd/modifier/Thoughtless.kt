@@ -73,7 +73,7 @@ class Thoughtless {
 
         private var thoughtlessConfirmed = false
 
-        private fun isItemAffected(item: Item): Boolean = AFFECTED_ITEMS.any { it.isInstance(item) }
+        fun isItemAffected(item: Item): Boolean = AFFECTED_ITEMS.any { it.isInstance(item) }
 
         private fun affectedItems(): Pair<List<Item>, List<Item>> {
             val belongings =
