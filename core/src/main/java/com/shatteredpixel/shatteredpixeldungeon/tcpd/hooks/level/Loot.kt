@@ -16,7 +16,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Level
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level.set
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.ProtectedItemsTracker
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.ProtectedGoodsTracker
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.curseIfAllowed
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.defaultNItems
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.furrowCell
@@ -89,7 +89,7 @@ fun Level.applyProtectedGoods() {
                 allowedPoS--
                 return@transformItems it
             }
-            Buff.affect(Dungeon.hero, ProtectedItemsTracker::class.java).addItem(it)
+            Buff.affect(Dungeon.hero, ProtectedGoodsTracker::class.java).addItem(it)
             IOU.protected(it)
         } else {
             it

@@ -13,7 +13,7 @@ import com.watabou.utils.Bundle
 import com.watabou.utils.PathFinder
 import kotlin.math.pow
 
-class ProtectedItemsTracker :
+class ProtectedGoodsTracker :
     Buff(),
     OnBossSlainBuff {
     init {
@@ -44,7 +44,7 @@ class ProtectedItemsTracker :
         for (i in 0 until Dungeon.level.length()) {
             val distance = PathFinder.distance[i]
             if (distance <= 0) continue
-            if (distance < Int.MAX_VALUE && !Dungeon.level.pit[i]) {
+            if (distance < Int.MAX_VALUE && !Dungeon.level.pit[i] && Dungeon.level.getTransition(i) == null) {
                 validCells.add(weightedPair(1f / distance.toFloat().pow(1), i))
             }
         }
