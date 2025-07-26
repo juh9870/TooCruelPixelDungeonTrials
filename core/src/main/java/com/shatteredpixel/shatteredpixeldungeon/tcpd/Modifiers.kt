@@ -9,6 +9,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.MasterThievesArm
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ExoticCrystals
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.RatSkull
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.SaltCube
+import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ShardOfOblivion
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.TextureDescriptor
@@ -203,6 +204,9 @@ enum class Modifier(
     CROWD_DIVERSITY(81, tags = arrayOf(Tag.ENEMY, Tag.COMBAT)),
     IN_YOUR_FACE(82, tags = arrayOf(Tag.ENEMY, Tag.LEVEL)),
     PERFECT_INFORMATION(84, tags = arrayOf(Tag.POSITIVE, Tag.HERO)),
+    COMPLETE_KNOWLEDGE(94, tags = arrayOf(Tag.POSITIVE, Tag.ITEM)) {
+        override fun _isItemBlocked(item: Item): Boolean = item is ShardOfOblivion
+    },
     SAFETY_BUFFER(85, tags = arrayOf(Tag.POSITIVE)),
     SKELETON_CREW(86, tags = arrayOf(Tag.ENEMY, Tag.LEVEL, Tag.HERO)) {
         override fun _nMobsMult(): Float = 0.5f
