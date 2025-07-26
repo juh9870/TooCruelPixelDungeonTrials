@@ -14,11 +14,16 @@ enum class TCPDIcons {
 
     AMULET_SMALL,
     AMULET_SMALL_DULL,
+    AMULET_GREEN,
     SKULL_SMALL,
     SKULL_SMALL_RED,
     SKULL_SMALL_BLACK,
 
+    EYE_OPEN,
+    EYE_CLOSED,
+
     GOLDEN_RING,
+    RANKINGS_DULL,
 
     CHALLENGE_DULL,
     CHALLENGE_GOLD,
@@ -69,6 +74,9 @@ enum class TCPDIcons {
                 AMULET_SMALL_DULL ->
                     icon.frame(icon.texture.uvRect(65f, 0f, 70f, 5f))
 
+                AMULET_GREEN ->
+                    icon.frame(icon.texture.uvRect(70f, 0f, 75f, 5f))
+
                 SKULL_SMALL ->
                     icon.frame(icon.texture.uvRect(60f, 5f, 65f, 11f))
 
@@ -77,6 +85,12 @@ enum class TCPDIcons {
 
                 SKULL_SMALL_BLACK ->
                     icon.frame(icon.texture.uvRect(70f, 5f, 75f, 11f))
+
+                EYE_OPEN ->
+                    icon.frame(icon.texture.uvRect(99f, 0f, 106f, 7f))
+
+                EYE_CLOSED ->
+                    icon.frame(icon.texture.uvRect(106f, 0f, 113f, 7f))
 
                 CHALLENGE_DULL ->
                     icon.frame(icon.texture.uvRect(0f, 23f, 14f, 35f))
@@ -101,6 +115,9 @@ enum class TCPDIcons {
 
                 GOLDEN_RING ->
                     icon.frame(icon.texture.uvRect(0f, 35f, 18f, 53f))
+
+                RANKINGS_DULL ->
+                    icon.frame(icon.texture.uvRect(18f, 35f, 35f, 51f))
 
                 RAT ->
                     icon.frame(icon.texture.uvRect(0f, 64f, 16f, 80f))

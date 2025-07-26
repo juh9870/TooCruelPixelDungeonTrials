@@ -373,6 +373,10 @@ sealed interface TextureDescriptor {
         val icon: Icons,
     ) : TextureDescriptor
 
+    class HeroClassIcon(
+        val cl: com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass,
+    ) : TextureDescriptor
+
     class TCPDIcon(
         val icon: TCPDIcons,
     ) : TextureDescriptor
@@ -396,6 +400,7 @@ sealed interface TextureDescriptor {
             is SmartTexture -> Image(TextureCache.get(texture))
             is Pixmap -> Image(TextureCache.get(pixmap))
             is Icon -> Icons.get(icon)
+            is HeroClassIcon -> Icons.get(cl)
             is TCPDIcon -> TCPDIcons.get(icon)
             is HeroClass -> HeroSprite.avatar(heroClass, armorTier)
             is ItemSprite ->
@@ -419,6 +424,7 @@ sealed interface TextureDescriptor {
             is Pixmap -> image.texture(TextureCache.get(pixmap))
             is SmartTexture -> image.texture(TextureCache.get(texture))
             is Icon -> image.copy(Icons.get(icon))
+            is HeroClassIcon -> image.copy(Icons.get(cl))
             is TCPDIcon -> image.copy(TCPDIcons.get(icon))
             is HeroClass -> image.copy(HeroSprite.avatar(heroClass, armorTier))
             is ItemSprite -> image.copy(asImage())

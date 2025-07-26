@@ -495,6 +495,17 @@ class Modifiers() : Bundlable {
         val str = encodeBits(modifiers)
         return str
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Modifiers
+
+        return modifiers.contentEquals(other.modifiers)
+    }
+
+    override fun hashCode(): Int = modifiers.contentHashCode()
 }
 
 private fun doTests() {

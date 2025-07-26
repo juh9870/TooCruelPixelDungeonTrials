@@ -66,6 +66,8 @@ open class Trial() : Bundlable {
 
     fun copy(): Trial = Trial(name, modifiers.copyOf(), lockedClass)
 
+    fun isCustom(): Boolean = name == CUSTOM.name
+
     fun isValid(): Boolean {
         valid?.let { return it }
 
@@ -121,7 +123,12 @@ open class Trial() : Bundlable {
             }
 
         fun fromNetworkBundle(bundle: Bundle): Trial {
-            val name = bundle.getString(NAME)
+            var name = bundle.getString(NAME)
+            if (name.isBlank()) {
+                name = "<UNNAMED>"
+            } else if (name == CUSTOM.name) {
+                name = "Custom (net)"
+            }
             val modifiersCode = bundle.getString(MODIFIERS)
             val decoded = modifiersCode.decodeBase58().asBits().trimEnd()
 

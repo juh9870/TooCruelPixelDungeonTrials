@@ -171,8 +171,8 @@ inline fun <T> withRedButtonBackground(
     background: NinePatchDescriptor = Chrome.Type.RED_BUTTON.descriptor(),
     crossinline content: () -> T,
 ): T =
-    ui
-        .vertical(background = background) {
+    WithLayout(null, background = background)
+        .show(ui) {
             ui
                 .margins(margins) {
                     val bg = (ui.top().painter().getGroup() as NinePatchComponent).ninePatch

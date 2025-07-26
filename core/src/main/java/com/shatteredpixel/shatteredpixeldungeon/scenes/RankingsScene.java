@@ -81,7 +81,7 @@ public class RankingsScene extends PixelScene {
 		
 		Rankings.INSTANCE.load();
 
-		IconTitle title = new IconTitle( Icons.RANKINGS.get(), Messages.get(this, "title"));
+		IconTitle title = new IconTitle( Icons.RANKINGS.get(), Messages.get(this, "tcpd_recent_games"));
 		title.setSize(200, 0);
 		title.setPos(
 				(w - title.reqWidth()) / 2f,

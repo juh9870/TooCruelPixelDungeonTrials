@@ -26,13 +26,13 @@ class UiText(
         val text = top.painter().drawText(id, space, text, size, multiline)
 
         val textSize = Vec2(ceil(text.width()).toInt(), ceil(text.height()).toInt())
-        val rect = top.allocateSize(textSize)
+        var rect = top.allocateSize(textSize)
 
-        if (rect.width() > textSize.x || rect.height() > textSize.y) {
-            val newRect = rect.centerInside(textSize)
-            text.setPos(newRect.min.x.toFloat(), newRect.min.y.toFloat())
-            PixelScene.align(text)
+        if (rect.width() != textSize.x || rect.height() != textSize.y) {
+            rect = rect.centerInside(textSize)
         }
+        text.setPos(rect.min.x.toFloat(), rect.min.y.toFloat())
+        PixelScene.align(text)
         return WidgetResponse(text, UiResponse(rect, id))
     }
 }

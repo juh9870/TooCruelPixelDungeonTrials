@@ -89,18 +89,41 @@ abstract class Layout(
     }
 
     open class StackJustified(
+        private val justifyVertical: Boolean,
+        private val justifyHorizontal: Boolean,
         availableSpace: Rect,
     ) : Stack(availableSpace) {
-        companion object : LayoutConstructor {
-            override fun construct(availableSpace: Rect): Layout = StackJustified(availableSpace)
+        class JustifiedLayoutConstructor(
+            val justifyVertical: Boolean,
+            val justifyHorizontal: Boolean,
+        ) : LayoutConstructor {
+            override fun construct(availableSpace: Rect): Layout = StackJustified(justifyVertical, justifyHorizontal, availableSpace)
+        }
+
+        companion object {
+            fun construct(
+                justifyVertical: Boolean,
+                justifyHorizontal: Boolean,
+            ): LayoutConstructor = JustifiedLayoutConstructor(justifyVertical, justifyHorizontal)
         }
 
         override fun allocate(
             desired: Vec2,
             style: Style,
-        ): Rect = super.allocate(Vec2(availableSpace.width(), desired.y), style)
+        ): Rect =
+            super.allocate(
+                Vec2(
+                    if (justifyHorizontal) availableSpace.width() else desired.x,
+                    if (justifyVertical) availableSpace.height() else desired.y,
+                ),
+                style,
+            )
 
-        override fun childContinued(): LayoutConstructor = StackJustified
+        override fun childContinued(): LayoutConstructor =
+            JustifiedLayoutConstructor(
+                justifyVertical,
+                justifyHorizontal,
+            )
     }
 
     open class StackFill(

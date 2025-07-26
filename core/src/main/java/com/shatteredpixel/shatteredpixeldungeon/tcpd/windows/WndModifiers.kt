@@ -207,7 +207,7 @@ private fun Ui.modifierBtn(
                                         }
                                     image(icon.descriptor(), allocatedSize = Vec2(5, 6))
                                     top().addSpace(winsPadding.roundToInt())
-                                    label("${score.wins}", 6)
+                                    label(winsText, 6)
                                 }
 
                                 horizontal {
@@ -221,7 +221,7 @@ private fun Ui.modifierBtn(
                                         }
                                     image(icon.descriptor(), allocatedSize = Vec2(5, 6))
                                     top().addSpace(lossesPadding.roundToInt())
-                                    label("${score.losses}", 6)
+                                    label(lossesText, 6)
                                 }
                             }
                         (iconsRes.response.rect.width() * iconsShow).roundToInt() - 1

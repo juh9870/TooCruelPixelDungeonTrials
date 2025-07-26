@@ -49,6 +49,7 @@ import com.watabou.utils.FileUtils;
 
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -571,14 +572,25 @@ public enum Rankings {
 	public static final Comparator<Record> scoreComparator = new Comparator<Rankings.Record>() {
 		@Override
 		public int compare( Record lhs, Record rhs ) {
-			//this covers custom seeded runs and dailies
-			if (rhs.customSeed.isEmpty() && !lhs.customSeed.isEmpty()){
-				return +1;
-			} else if (lhs.customSeed.isEmpty() && !rhs.customSeed.isEmpty()){
-				return -1;
+			DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ROOT);
+			long lhsTime = 0;
+			long rhsTime = 0;
+			try {
+				Date lhsDate = format.parse(lhs.date);
+				if (lhsDate != null) {
+					lhsTime = lhsDate.getTime();
+				}
+			} catch (ParseException ignored) {
+			}
+			try {
+				Date rhsDate = format.parse(rhs.date);
+				if (rhsDate != null) {
+					rhsTime = rhsDate.getTime();
+				}
+			} catch (ParseException ignored) {
 			}
 
-			int result = (int)Math.signum( rhs.score - lhs.score );
+			int result = (int)Math.signum( rhsTime - lhsTime );
 			if (result == 0) {
 				return (int)Math.signum( rhs.gameID.hashCode() - lhs.gameID.hashCode());
 			} else {

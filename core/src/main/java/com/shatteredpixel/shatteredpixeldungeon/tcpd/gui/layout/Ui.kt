@@ -90,14 +90,22 @@ class Ui(
         crossinline block: () -> T,
     ): InnerResponse<T> = withLayout(id = id, block = block)
 
-    fun popLayout(id: UiId): UiResponse {
+    fun popLayout(
+        id: UiId,
+        preallocated: Boolean = false,
+    ): UiResponse {
         val removed = stack.removeLast()
         if (removed.id != id) {
             throw IllegalStateException("Popped layout with wrong ID: ${removed.id} != $id")
         }
         val allocatedSpace = removed.allocatedSpace?.expand(removed.margins)
         val parent = stack.last()
-        val rect = parent.allocateSize(allocatedSpace?.size() ?: removed.margins.size())
+        val rect =
+            if (preallocated) {
+                allocatedSpace ?: parent.allocateSize(Vec2(0, 0))
+            } else {
+                parent.allocateSize(allocatedSpace?.size() ?: removed.margins.size())
+            }
 
         // if the removed layout had a different painter group, we need to update the rect accordingly
         val curPainterGroup = removed.painter().getGroup()

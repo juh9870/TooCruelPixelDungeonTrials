@@ -14,7 +14,7 @@ class TCPDData(
 
     init {
         this.modifiers = trial.getModifiers() ?: throw IllegalArgumentException("Invalid trial")
-        if (trial != Trial.CUSTOM) this.trial = trial
+        if (!trial.isCustom()) this.trial = trial
     }
 
     fun asInfoData(): TCPDGameInfoData =

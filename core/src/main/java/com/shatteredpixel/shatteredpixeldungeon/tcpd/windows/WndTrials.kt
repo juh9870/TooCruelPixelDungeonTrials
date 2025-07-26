@@ -6,6 +6,8 @@ import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.TCPDIcons
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.TCPDScores
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Trial
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.TrialGroup
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Trials
@@ -13,6 +15,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Margins
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.TcpdWindow
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Vec2
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.LoopingState
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.useAnimation
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.useMemo
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.useState
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Ui
@@ -29,10 +32,14 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.dimInactiveVisu
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.horizontal
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.iconButton
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.image
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.label
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.margins
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.measureTextWidth
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.redButton
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.rightToLeft
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.shrinkToFitLabel
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.stack
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.vertical
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.verticalJustified
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.easeInOutBack
 import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator
@@ -48,6 +55,8 @@ import com.watabou.noosa.Game
 import com.watabou.utils.ColorMath
 import java.net.MalformedURLException
 import java.net.URL
+import kotlin.math.max
+import kotlin.math.roundToInt
 import kotlin.math.sin
 
 class WndTrials : TcpdWindow() {
@@ -353,7 +362,7 @@ class WndTrials : TcpdWindow() {
                             label.widget.hardlight(
                                 ColorMath.interpolate(
                                     0xFFFFFF,
-                                    Window.SHPX_COLOR,
+                                    SHPX_COLOR,
                                     0.5f + sin((Game.timeTotal * 5).toDouble()).toFloat() / 2f,
                                 ),
                             )
@@ -363,11 +372,7 @@ class WndTrials : TcpdWindow() {
                     }.onClick {
                         group.notificationShown()
                         ShatteredPixelDungeon.scene().add(
-                            object : WndTrialsGroup(group) {
-                                override fun onBackPressed() {
-                                    super.onBackPressed()
-                                }
-                            },
+                            WndTrialsGroup(group),
                         )
                     }
                 }
@@ -380,6 +385,7 @@ private fun validateUrl(url: String?): Boolean {
     if (url.isNullOrBlank()) return false
 
     try {
+        @Suppress("DEPRECATION")
         URL(url)
     } catch (e: MalformedURLException) {
         ShatteredPixelDungeon.scene().add(
@@ -432,28 +438,56 @@ private open class WndTrialsGroup(
 
     override fun Ui.drawUi() {
         verticalJustified {
+            var showScore by useState(Unit) { false }
             verticalJustified {
-                shrinkToFitLabel(group.nameOrTrimmedUrl(), 12).widget.hardlight(
-                    TITLE_COLOR,
-                )
+                rightToLeft {
+                    redButton(margins = Margins.ZERO) {
+                        rightToLeft {
+                            image(if (showScore) TCPDIcons.EYE_OPEN.descriptor() else TCPDIcons.EYE_CLOSED.descriptor())
+                            activeLabel(
+                                Messages.get(WndTrials::class.java, "rankings"),
+                                7,
+                            )
+                        }
+                    }.onClick {
+                        showScore = !showScore
+                    }
+                    shrinkToFitLabel(group.nameOrTrimmedUrl(), 12).widget.hardlight(
+                        TITLE_COLOR,
+                    )
+                }
             }
             top().addSpace(2)
             PaginatedList(group.trials.size, 19).show(this) { i ->
-                trialButton(group.trials[i])
+                trialButton(group.trials[i], showScore)
             }
         }
     }
 }
 
-private fun Ui.trialButton(trial: Trial) {
+private fun Ui.trialButton(
+    trial: Trial,
+    showScore: Boolean = false,
+) {
+    val score = TCPDScores.load().trialScore(trial)
     rightToLeft {
         val valid = trial.isValid()
         margins(Margins.only(top = 2)) {
             if (valid) {
-                iconButton(Icons.INFO.descriptor()).onClick {
+                appearingIconButton(Icons.INFO.descriptor(), !showScore, duration = 0.3f).onClick {
                     ShatteredPixelDungeon.scene().add(
                         WndModifiers(trial.getModifiers()!!, trial, false),
                     )
+                }
+                withEnabled(score?.rankingsEmpty() == false) {
+                    appearingIconButton(Icons.RANKINGS.descriptor(), showScore, duration = 0.3f)
+                        .onClick {
+                            ShatteredPixelDungeon.scene().add(
+                                WndTCPDRankings(
+                                    trial,
+                                ),
+                            )
+                        }
                 }
             } else {
                 iconButton(Icons.WARNING.descriptor()).onClick {
@@ -490,31 +524,117 @@ private fun Ui.trialButton(trial: Trial) {
             }
         }
 
-        verticalJustified {
-            withEnabled(valid) {
-                redButton(margins = Margins.ZERO) {
-                    horizontal {
-                        val redCheckboxWidth =
-                            Icons.CHECKED
-                                .descriptor()
-                                .size()
-                                .x
-                        val res =
-                            margins(Margins(3, 0, 1 + redCheckboxWidth, 0)) {
-                                trial.lockedClass?.let { heroClass ->
-                                    image(TextureDescriptor.HeroClass(heroClass, 6))
-                                }
-                                val res = shrinkToFitLabel(trial.name, 9, 15)
-                                dimInactiveText(res)
-                                res
-                            }
-//                        drawRedCheckbox(Trials.curTrial === trial, res.inner.response.rect)
+        horizontal {
+            stack {
+                val scoresShow =
+                    useAnimation(Unit, showScore, 0.2f) {
+                        it
                     }
-                }.onClick {
-                    if (isSelected) {
-                        ping = true
+
+                val offset =
+                    if (scoresShow > 0f) {
+                        val iconsRes =
+                            vertical(background = Chrome.Type.GREY_BUTTON.descriptor()) {
+                                val scoreWins = score?.wins ?: 0
+                                val scoreLosses = score?.losses ?: 0
+                                val scoreSeededWins = score?.seededWins ?: 0
+                                val isSeeded = scoreWins == 0 && scoreSeededWins > 0
+                                val winsText =
+                                    if (isSeeded) {
+                                        scoreSeededWins.toString()
+                                    } else {
+                                        scoreWins.toString()
+                                    }
+                                val lossesText = scoreLosses.toString()
+
+                                val minWidth =
+                                    measureTextWidth(
+                                        "0".repeat(
+                                            max(
+                                                winsText.length,
+                                                lossesText.length,
+                                            ),
+                                        ),
+                                        6,
+                                    )
+
+                                val winsWidth = measureTextWidth(winsText, 7)
+                                val lossesWidth = measureTextWidth(lossesText, 7)
+                                val winsPadding = max(0f, minWidth - winsWidth)
+                                val lossesPadding = max(0f, minWidth - lossesWidth)
+
+                                horizontal {
+                                    top().setStyle(top().style().copy(itemSpacing = 1))
+                                    val icon =
+                                        if (isSeeded) {
+                                            TCPDIcons.AMULET_GREEN
+                                        } else if (scoreWins > 0) {
+                                            TCPDIcons.AMULET_SMALL
+                                        } else {
+                                            TCPDIcons.AMULET_SMALL_DULL
+                                        }
+                                    image(icon.descriptor(), allocatedSize = Vec2(5, 6))
+                                    top().addSpace(winsPadding.roundToInt())
+                                    val text = label(winsText, 7)
+
+                                    if (isSeeded) {
+                                        text.widget.hardlight(Window.SHPX_COLOR)
+                                    } else if (scoreWins > 0) {
+                                        text.widget.hardlight(Window.TITLE_COLOR)
+                                    } else {
+                                        text.widget.resetColor()
+                                    }
+                                }
+
+                                top().addSpace(1)
+
+                                horizontal {
+                                    top().setStyle(top().style().copy(itemSpacing = 1))
+                                    val icon =
+                                        if (scoreLosses > 50) {
+                                            TCPDIcons.SKULL_SMALL_BLACK
+                                        } else if (scoreLosses > 0) {
+                                            TCPDIcons.SKULL_SMALL_RED
+                                        } else {
+                                            TCPDIcons.SKULL_SMALL
+                                        }
+                                    image(icon.descriptor(), allocatedSize = Vec2(5, 6))
+                                    top().addSpace(lossesPadding.roundToInt())
+                                    label(lossesText, 7)
+                                }
+                            }
+                        ((iconsRes.response.rect.width() - 1) * scoresShow).roundToInt()
                     } else {
-                        Trials.curTrial = trial
+                        0
+                    }
+
+                margins(Margins.only(left = offset)) {
+                    verticalJustified {
+                        withEnabled(valid) {
+                            redButton(margins = Margins.ZERO) {
+                                horizontal {
+                                    val redCheckboxWidth =
+                                        Icons.CHECKED
+                                            .descriptor()
+                                            .size()
+                                            .x
+                                    margins(Margins(3, 0, 1 + redCheckboxWidth, 0)) {
+                                        trial.lockedClass?.let { heroClass ->
+                                            image(TextureDescriptor.HeroClass(heroClass, 6))
+                                        }
+                                        val res = shrinkToFitLabel(trial.name, 9, 15)
+                                        dimInactiveText(res)
+                                        res
+                                    }
+                                }
+                            }.onClick {
+                                if (isSelected) {
+                                    ping = true
+                                } else {
+                                    Trials.curTrial = trial
+                                }
+                            }
+                        }
                     }
                 }
             }

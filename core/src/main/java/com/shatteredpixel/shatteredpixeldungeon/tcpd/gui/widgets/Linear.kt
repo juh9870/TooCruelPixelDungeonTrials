@@ -1,6 +1,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets
 
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Margins
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Vec2
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.InnerResponse
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Layout
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.LayoutConstructor
@@ -99,12 +100,25 @@ inline fun <T> Ui.stack(
         background = background,
     ).show(this, block)
 
+inline fun <T> Ui.fixedSize(
+    size: Vec2,
+    crossinline block: () -> T,
+): InnerResponse<T> {
+    val available = top().allocateSize(size)
+    val id = pushLayout(availableSpace = available, layout = Layout.Stack)
+    val inner = block()
+    val response = popLayout(id, preallocated = true)
+    return InnerResponse(inner, response)
+}
+
 inline fun <T> Ui.stackJustified(
     background: NinePatchDescriptor? = null,
+    justifyVertical: Boolean = true,
+    justifyHorizontal: Boolean = true,
     crossinline block: () -> T,
 ): InnerResponse<T> =
     WithLayout(
-        layout = Layout.StackJustified,
+        layout = Layout.StackJustified.construct(justifyVertical, justifyHorizontal),
         background = background,
     ).show(this, block)
 
