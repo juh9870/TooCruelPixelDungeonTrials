@@ -6,9 +6,13 @@
 
 > Released on ReleaseDate
 
+## [0.16.1]
+
+> Released on 2025-07-27
+
 ### Fixed
 
-- Thoughtless can be bypassed by dropping items into chasms (by juh9870)
+- Thoughtless can be bypassed by dropping items into chasms
 
 ## [0.16.0]
 
@@ -434,7 +438,8 @@
 - Project seeded on top of Shattered Pixel Dungeon v3.0.0
 
 <!-- next-url -->
-[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.16.0...HEAD
+[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.16.1...HEAD
+[0.16.1]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.16.0...TCPD-0.16.1
 [0.16.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.16.0-beta.1...TCPD-0.16.0
 [0.16.0-beta.1]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.15.1...TCPD-0.16.0-beta.1
 [0.15.1]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.15.0...TCPD-0.15.1
