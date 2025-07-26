@@ -74,8 +74,13 @@ fun Level.isDoor(cell: Int): Boolean {
 }
 
 inline fun Level.transformItems(crossinline cb: (Item) -> Item?) {
-    for (h in heaps) {
+    val heaps = heaps.iterator()
+    while (heaps.hasNext()) {
+        val h = heaps.next()
         h.value.transformItems(cb)
+        if (h.value.isEmpty) {
+            heaps.remove()
+        }
     }
 
     val replacementMobs = mutableMapOf<Mob, Mob>()

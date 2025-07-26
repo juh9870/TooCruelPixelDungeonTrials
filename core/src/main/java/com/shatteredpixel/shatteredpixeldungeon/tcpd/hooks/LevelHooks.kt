@@ -34,6 +34,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.applyProtectedG
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.applyRecursiveHierarchy
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.applySecondTry
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.applyThunderstruck
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.modifier.Thoughtless
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage
 import com.watabou.noosa.Game
 import com.watabou.utils.BArray
@@ -310,7 +311,17 @@ fun Level.activateTransitionHook(
             return false
         }
     }
+
+    if (Modifier.THOUGHTLESS.active()) {
+        return Thoughtless.confirmAffectedItems(hero, transition)
+    }
     return true
+}
+
+fun beforeTransitionHook() {
+    if (Modifier.THOUGHTLESS.active()) {
+        Thoughtless.clearAffectedItems()
+    }
 }
 
 @Suppress("NAME_SHADOWING")

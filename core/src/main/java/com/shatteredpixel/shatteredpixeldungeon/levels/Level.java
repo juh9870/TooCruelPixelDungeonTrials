@@ -588,6 +588,8 @@ public abstract class Level implements Bundlable {
 	//some buff effects have special logic or are cancelled from the hero before transitioning levels
 	public static void beforeTransition(){
 
+		LevelHooksKt.beforeTransitionHook();
+
 		//time freeze effects need to resolve their pressed cells before transitioning
 		TimekeepersHourglass.timeFreeze timeFreeze = Dungeon.hero.buff(TimekeepersHourglass.timeFreeze.class);
 		if (timeFreeze != null) timeFreeze.disarmPresses();

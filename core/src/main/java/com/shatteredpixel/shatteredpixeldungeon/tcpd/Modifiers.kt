@@ -14,6 +14,7 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.TextureDescriptor
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.descriptor
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.modifier.Thoughtless
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.UnorderedPair
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBits
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBytes
@@ -207,6 +208,14 @@ enum class Modifier(
     COMPLETE_KNOWLEDGE(94, tags = arrayOf(Tag.POSITIVE, Tag.ITEM)) {
         override fun _isItemBlocked(item: Item): Boolean = item is ShardOfOblivion
     },
+    THOUGHTLESS(95, dependencies = arrayOf(COMPLETE_KNOWLEDGE.id), tags = arrayOf(Tag.ITEM)) {
+        override fun localizedDesc(): String =
+            Messages.get(
+                Modifier::class.java,
+                "thoughtless_desc",
+                Thoughtless.AFFECTED_ITEMS_NAMES.joinToString("\n"),
+            )
+    },
     SAFETY_BUFFER(85, tags = arrayOf(Tag.POSITIVE)),
     SKELETON_CREW(86, tags = arrayOf(Tag.ENEMY, Tag.LEVEL, Tag.HERO)) {
         override fun _nMobsMult(): Float = 0.5f
@@ -225,7 +234,7 @@ enum class Modifier(
         dependencies = arrayOf(HEAD_START.id, PROTECTED_GOODS.id),
         tags = arrayOf(Tag.BOSS, Tag.DUNGEON),
     ),
-    // Next ID: 95
+    // Next ID: 96
     ;
 
     val tags = Tag.process(dependencies.isNotEmpty(), tags)
@@ -235,7 +244,7 @@ enum class Modifier(
 
     fun localizedName(): String = Messages.get(localizationClass, localizationKey)
 
-    fun localizedDesc(): String = Messages.get(localizationClass, localizationKey + "_desc")
+    open fun localizedDesc(): String = Messages.get(localizationClass, localizationKey + "_desc")
 
     @Suppress("FunctionName")
     open fun _isItemBlocked(item: Item): Boolean = false

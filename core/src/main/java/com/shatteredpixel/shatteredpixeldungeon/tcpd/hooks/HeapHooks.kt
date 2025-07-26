@@ -6,4 +6,5 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.filterMapInPlace
 
 inline fun Heap.transformItems(crossinline cb: (Item) -> Item?) {
     items.filterMapInPlace(cb)
+    sprite?.link()
 }
