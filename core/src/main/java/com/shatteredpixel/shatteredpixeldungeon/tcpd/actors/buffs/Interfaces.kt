@@ -126,12 +126,12 @@ interface DamageIconSource {
 interface OnXpGainBuff {
     fun onXpGained(
         exp: Int,
-        source: Any?,
+        source: Class<*>,
     )
 }
 
 interface XpMultiplierBuff {
-    fun xpMultiplier(source: Any?): Float
+    fun xpMultiplier(source: Class<*>): Float
 }
 
 interface OnBossSlainBuff {

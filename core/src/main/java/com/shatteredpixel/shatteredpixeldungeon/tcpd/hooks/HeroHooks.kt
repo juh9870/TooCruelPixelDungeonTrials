@@ -40,9 +40,9 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.PrisonExpress
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RacingTheDeath
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RetieredBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.SafetyBuffer
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.SkeletonCrewBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.SteelBody
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.SwitchLevelBuff
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.UninspiredToLearnBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.XpMultiplierBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.forEachBuff
 import com.watabou.noosa.tweeners.Delayer
@@ -102,8 +102,8 @@ fun Hero.heroLiveHook() {
     if (Modifier.SAFETY_BUFFER.active()) {
         Buff.affect(this, SafetyBuffer::class.java)
     }
-    if (Modifier.SKELETON_CREW.active()) {
-        Buff.affect(this, SkeletonCrewBuff::class.java)
+    if (Modifier.UNINSPIRED_TO_LEARN.active()) {
+        Buff.affect(this, UninspiredToLearnBuff::class.java)
     }
 }
 
@@ -246,20 +246,20 @@ fun Hero.subClassPicked() {
     }
 }
 
-@Suppress("NAME_SHADOWING")
 fun Hero.earnExpHook(
     exp: Int,
-    source: Any?,
+    source: Class<*>,
 ): Int {
     var fExp = exp.toFloat()
 
     forEachBuff<XpMultiplierBuff> {
         fExp *= it.xpMultiplier(source)
     }
+    if (Modifier.SKELETON_CREW.active()) fExp *= 2f
 
     val newExp = fExp.toInt()
 
-    if (source !is AscensionChallenge) {
+    if (!AscensionChallenge::class.java.isAssignableFrom(source)) {
         if (newExp > exp) {
             sprite.showStatusWithIcon(CharSprite.POSITIVE, "$exp", FloatingText.EXPERIENCE)
         } else {

@@ -212,7 +212,8 @@ enum class Modifier(
     ) {
         override fun _nMobsMult(): Float = 0f
     },
-    // Next ID: 89
+    UNINSPIRED_TO_LEARN(89, tags = arrayOf(Tag.HERO, Tag.BOSS)),
+    // Next ID: 90
     ;
 
     val tags = Tag.process(dependencies.isNotEmpty(), tags)

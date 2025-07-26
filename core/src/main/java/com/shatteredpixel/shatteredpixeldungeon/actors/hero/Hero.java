@@ -1952,6 +1952,7 @@ public class Hero extends Char {
 	public void earnExp( int exp, Class source ) {
 
 		exp = HeroHooksKt.earnExpHook(this, exp, source);
+		if (exp == 0) return;
 
 		//xp granted by ascension challenge is only for on-exp gain effects
 		if (source != AscensionChallenge.class) {
