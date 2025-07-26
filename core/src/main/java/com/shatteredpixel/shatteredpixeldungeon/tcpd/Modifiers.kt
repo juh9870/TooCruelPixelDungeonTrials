@@ -223,9 +223,9 @@ enum class Modifier(
     BOSS_RUSH(
         93,
         dependencies = arrayOf(HEAD_START.id, PROTECTED_GOODS.id),
-        tags = arrayOf(Tag.ITEM, Tag.BOSS, Tag.DUNGEON),
+        tags = arrayOf(Tag.BOSS, Tag.DUNGEON),
     ),
-    // Next ID: 94
+    // Next ID: 95
     ;
 
     val tags = Tag.process(dependencies.isNotEmpty(), tags)
