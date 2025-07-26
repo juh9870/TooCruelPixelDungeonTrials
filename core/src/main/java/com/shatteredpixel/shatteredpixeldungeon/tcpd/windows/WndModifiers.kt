@@ -119,7 +119,7 @@ private fun Ui.drawModifiers(
             resetPage = true
             val allEnabled = mutableListOf<Modifier>()
             Modifier.entries.filterTo(allEnabled) { modifiers.isEnabled(it) }.toMutableList()
-            sort.get().apply(allEnabled)
+            sort.get().apply(allEnabled, filter = false)
 
             if (!editable) return@useMemo allEnabled
 
@@ -587,15 +587,21 @@ private data class FilterOptions(
     val sortReverse: Boolean,
     val filter: Filter = Filter(),
 ) {
-    fun apply(modifiers: MutableList<Modifier>) {
-        if (filter.selectedTag != null) {
+    fun apply(
+        modifiers: MutableList<Modifier>,
+        filter: Boolean = true,
+        sort: Boolean = true,
+    ) {
+        if (filter && this.filter.selectedTag != null) {
             modifiers.retainAll {
-                it.tags.contains(filter.selectedTag)
+                it.tags.contains(this.filter.selectedTag)
             }
         }
-        sortType.sort(modifiers)
-        if (sortReverse) {
-            modifiers.reverse()
+        if (sort) {
+            sortType.sort(modifiers)
+            if (sortReverse) {
+                modifiers.reverse()
+            }
         }
     }
 }
