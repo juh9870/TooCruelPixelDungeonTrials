@@ -1,6 +1,5 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd
 
-import com.shatteredpixel.shatteredpixeldungeon.Dungeon
 import com.shatteredpixel.shatteredpixeldungeon.Rankings
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.getMap
@@ -132,9 +131,11 @@ class TrialScore : Bundlable {
         synchronized(records) {
             val existingRecords = records.map { it.gameID }.toMutableSet()
 
-            // check rankings for records matching this modifiers
-            Rankings.INSTANCE.load()
-            addRecords.addAll(Rankings.INSTANCE.records)
+//            if (existingRecords.isEmpty()) {
+//                // check rankings for records matching this modifiers
+//                Rankings.INSTANCE.load()
+//                addRecords.addAll(Rankings.INSTANCE.records)
+//            }
             for (record in addRecords) {
                 val data = record.tcpdDataReadOnly()
                 if (data == null || data.modifiers.serializeToString() != modifiers) {
@@ -183,9 +184,9 @@ class TrialScore : Bundlable {
             save()
         }
 
-        this.wins += deletedWins
-        this.seededWins += deletedSeededWins
-        this.losses += deletedLosses
+        wins += deletedWins
+        seededWins += deletedSeededWins
+        losses += deletedLosses
 
         if (
             this.wins != wins ||
@@ -342,13 +343,10 @@ class TCPDScores : Bundlable {
             win: Boolean,
             record: Rankings.Record,
         ) {
-            if (Dungeon.hero == null) {
-                return
-            }
-
             val scores = load()
 
-            val trial = Dungeon.tcpdData.trial
+            val tcpdData = record.tcpdDataReadOnly() ?: return
+            val trial = tcpdData.trials
             if (trial != null && !trial.isCustom()) {
                 scores.trialScore(trial)?.record(record)
             }
@@ -359,7 +357,7 @@ class TCPDScores : Bundlable {
             }
 
             for (modifier in Modifier.ALL) {
-                if (!modifier.active()) {
+                if (!tcpdData.modifiers.isEnabled(modifier)) {
                     continue
                 }
                 val score = scores.modifierScore(modifier)
@@ -403,14 +401,14 @@ class TCPDScores : Bundlable {
         }
 
         // Updates all trials available in recent rankings
-        fun updateRankings() {
+        private fun updateRankings() {
             val scores = load()
-            Rankings.INSTANCE.load()
-            for (record in Rankings.INSTANCE.records) {
-                val data =
-                    record.tcpdDataReadOnly()?.trials?.let {
-                        scores.trialScore(it)?.load()
-                    }
+            // fresh save or update, pull rankings data
+            if (scores.trials.isEmpty() && scores.modifiers.isEmpty()) {
+                Rankings.INSTANCE.load()
+                for (record in Rankings.INSTANCE.records) {
+                    submit(record.win, record)
+                }
             }
         }
     }
