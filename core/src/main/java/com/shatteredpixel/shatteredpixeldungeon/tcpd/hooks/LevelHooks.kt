@@ -30,6 +30,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.applyLoft
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.applyLootParadise
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.applyMimics
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.applyOverTheEdge
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.applyProtectedGoods
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.applyRecursiveHierarchy
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.applySecondTry
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.applyThunderstruck
@@ -43,14 +44,8 @@ import kotlin.math.min
 
 fun RegularLevel.createItemsHook() {
     if (Modifier.HEAD_START.active() && Dungeon.depth == 1) {
-        val bonus =
-            if (Modifier.PRISON_EXPRESS.active()) {
-                1
-            } else {
-                0
-            }
-        val nUpgrades = 2 + bonus - Dungeon.LimitedDrops.UPGRADE_SCROLLS.count
-        val nStrength = 1 + bonus - Dungeon.LimitedDrops.STRENGTH_POTIONS.count
+        val nUpgrades = headStartRequiredSoU() - Dungeon.LimitedDrops.UPGRADE_SCROLLS.count
+        val nStrength = headStartRequiredPoS() - Dungeon.LimitedDrops.STRENGTH_POTIONS.count
         repeat(nUpgrades) {
             drop(ScrollOfUpgrade(), placeItemPos())
             Dungeon.LimitedDrops.UPGRADE_SCROLLS.count++
@@ -61,6 +56,10 @@ fun RegularLevel.createItemsHook() {
         }
     }
 }
+
+fun headStartRequiredPoS(): Int = if (Modifier.PRISON_EXPRESS.active()) 2 else 1
+
+fun headStartRequiredSoU(): Int = if (Modifier.PRISON_EXPRESS.active()) 3 else 2
 
 @RequiresOptIn(
     message = "Level creation hooks should only be called from the level post create hook",
@@ -116,6 +115,9 @@ fun Level.postCreateHook() {
     }
     if (Modifier.DOMAIN_OF_HELL.active()) {
         applyDomainOfHell()
+    }
+    if (Modifier.PROTECTED_GOODS.active()) {
+        applyProtectedGoods()
     }
 }
 

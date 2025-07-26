@@ -1,20 +1,32 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.WellWater
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap
 import com.shatteredpixel.shatteredpixeldungeon.items.Item
+import com.shatteredpixel.shatteredpixeldungeon.items.Stylus
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey
+import com.shatteredpixel.shatteredpixeldungeon.items.keys.Key
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLiquidFlame
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level.set
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.ProtectedItemsTracker
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.curseIfAllowed
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.defaultNItems
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.furrowCell
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.isLevelBossOrSpecial
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.transformItems
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.LevelCreationHooks
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.headStartRequiredPoS
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.headStartRequiredSoU
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.items.IOU
+import com.watabou.utils.DeviceCompat
 import com.watabou.utils.Random
 
 @LevelCreationHooks
@@ -53,6 +65,33 @@ fun Level.applySecondTry() {
     for (blob in blobs.values) {
         if (blob is WellWater) {
             blob.fullyClear(this)
+        }
+    }
+}
+
+@LevelCreationHooks
+fun Level.applyProtectedGoods() {
+    if (isLevelBossOrSpecial()) return
+
+    val headstart = Modifier.HEAD_START.active() && Dungeon.depth == 1
+    var allowedPoS = if (headstart) headStartRequiredPoS() else 0
+    var allowedSoU = if (headstart) headStartRequiredSoU() else 0
+    transformItems {
+        val isSpecial = it is ScrollOfUpgrade || it is PotionOfStrength || it is Stylus
+        val allItems = DeviceCompat.isDebug() && it !is Key
+        if (isSpecial || allItems) {
+            if (headstart && it is ScrollOfUpgrade && allowedSoU > 0) {
+                allowedSoU--
+                return@transformItems it
+            }
+            if (headstart && it is PotionOfStrength && allowedPoS > 0) {
+                allowedPoS--
+                return@transformItems it
+            }
+            Buff.affect(Dungeon.hero, ProtectedItemsTracker::class.java).addItem(it)
+            IOU.protected(it)
+        } else {
+            it
         }
     }
 }

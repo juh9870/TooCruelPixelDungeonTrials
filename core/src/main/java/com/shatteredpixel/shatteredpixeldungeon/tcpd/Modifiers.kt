@@ -186,7 +186,7 @@ enum class Modifier(
         dependencies = arrayOf(REPOPULATION.id),
         tags = arrayOf(Tag.EXTREME, Tag.ENEMY),
     ),
-    INFERTILITY(90, tags = arrayOf(Tag.ENEMY)),
+    INFERTILITY(90, tags = arrayOf(Tag.ENEMY, Tag.POSITIVE)),
     HYDRA(91, dependencies = arrayOf(INFERTILITY.id), tags = arrayOf(Tag.ENEMY)),
     CROOKED_DIE(67, tags = arrayOf(Tag.SILLY, Tag.RNG)),
     CRUMBLED_STAIRS(68, tags = arrayOf(Tag.DUNGEON)),
@@ -215,7 +215,8 @@ enum class Modifier(
         override fun _nMobsMult(): Float = 0f
     },
     UNINSPIRED_TO_LEARN(89, tags = arrayOf(Tag.HERO, Tag.BOSS)),
-    // Next ID: 92
+    PROTECTED_GOODS(92, tags = arrayOf(Tag.ITEM, Tag.BOSS, Tag.DUNGEON)),
+    // Next ID: 93
     ;
 
     val tags = Tag.process(dependencies.isNotEmpty(), tags)

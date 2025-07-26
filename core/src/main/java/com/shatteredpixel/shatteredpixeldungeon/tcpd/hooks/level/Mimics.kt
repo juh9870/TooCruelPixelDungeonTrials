@@ -27,6 +27,25 @@ import com.watabou.utils.PathFinder
 import com.watabou.utils.Random
 import kotlin.math.pow
 
+fun Level.mimicsEncaseHeap(h: Heap): Boolean = mimicsEncaseHeap(h, Modifier.MIMICS_ALL.active(), Modifier.MIMICS_GRIND.active())
+
+fun Level.mimicsEncaseHeap(
+    h: Heap,
+    allItems: Boolean,
+    grind: Boolean,
+): Boolean {
+    if (h.type == Heap.Type.CHEST || allItems) {
+        StoredHeapData.transformHeapIntoMimic(
+            this,
+            h,
+            extraLoot = grind,
+            weakHolders = !grind,
+        )
+        return true
+    }
+    return false
+}
+
 @LevelCreationHooks
 fun Level.applyMimics() {
     val allItems = Modifier.MIMICS_ALL.active()
@@ -34,13 +53,7 @@ fun Level.applyMimics() {
     val iter = heaps.iterator()
     while (iter.hasNext()) {
         val h = iter.next()
-        if (h.value.type == Heap.Type.CHEST || allItems) {
-            StoredHeapData.transformHeapIntoMimic(
-                this,
-                h.value,
-                extraLoot = grind,
-                weakHolders = !grind,
-            )
+        if (mimicsEncaseHeap(h.value, allItems, grind)) {
             iter.remove()
         }
     }

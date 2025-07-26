@@ -72,6 +72,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRage;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRecharging;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfRemoveCurse;
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade;
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfDisintegration;
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfMagicMissile;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Cudgel;
@@ -173,7 +174,7 @@ public enum HeroClass {
 			new PotionOfMindVision().quantity(10).identify().collect();
 			new ScrollOfMagicMapping().quantity(100).identify().collect();
 			new WarHammer().identify().upgrade(9001).collect();
-			new WandOfMagicMissile().upgrade(90001).collect();
+			new WandOfDisintegration().upgrade(90001).collect();
 			Amulet amulet = new Amulet();
 			amulet.collect();
 			for (int s = 0; s < QuickSlot.SIZE; s++) {
