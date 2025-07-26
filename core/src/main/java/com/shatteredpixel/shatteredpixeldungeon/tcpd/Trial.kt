@@ -479,6 +479,7 @@ class Trials : Bundlable {
 
                             try {
                                 val newGroup = TrialGroup.fromNetworkBundle(bundle)
+                                newGroup.url = group.url
                                 group.updateError = null
 
                                 if (group.compareUpdate(newGroup)) save()
