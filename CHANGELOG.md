@@ -6,21 +6,25 @@
 
 > Released on ReleaseDate
 
+## [0.16.0-beta.1]
+
+> Released on 2025-07-26
+
 ### Added
 
-- Updated to SHPD v3.1.1 (by juh9870)
-- Tag-based filtering for modifiers window (by juh9870)
-- Sorting options for modifiers window (by juh9870)
-- Rankings for individual trials (by juh9870)
-- Counters to track wins and losses for trials and modifiers (by juh9870)
+- Updated to SHPD v3.1.1
+- Tag-based filtering for modifiers window
+- Sorting options for modifiers window
+- Rankings for individual trials
+- Counters to track wins and losses for trials and modifiers
 
 ### Changed
 
-- Buttons functionality in modifiers window string to be consistent with custom seeds (by juh9870)
+- Buttons functionality in modifiers window string to be consistent with custom seeds
 
 ### Fixed
 
-- Concurrent modification exception in dungeon observe hook (by juh9870)
+- Concurrent modification exception in dungeon observe hook
 
 ## [0.15.1]
 
@@ -397,7 +401,8 @@
 - Project seeded on top of Shattered Pixel Dungeon v3.0.0
 
 <!-- next-url -->
-[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.15.1...HEAD
+[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.16.0-beta.1...HEAD
+[0.16.0-beta.1]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.15.1...TCPD-0.16.0-beta.1
 [0.15.1]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.15.0...TCPD-0.15.1
 [0.15.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.14.1...TCPD-0.15.0
 [0.14.1]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.14.0...TCPD-0.14.1
