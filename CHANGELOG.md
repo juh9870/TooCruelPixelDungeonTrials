@@ -27,6 +27,10 @@
 - Modifier sort/filter bar is hidden in non-editable modifiers lists
 - Enabled modifiers are no longer filtered out
 
+### Removed
+
+- Crystal Crusher trial
+
 ### Fixed
 
 - Trials groups not updating properly after checking for updates
