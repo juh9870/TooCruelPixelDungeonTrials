@@ -6,6 +6,22 @@
 
 > Released on ReleaseDate
 
+### Added
+
+- Updated to SHPD v3.1.1 (by juh9870)
+- Tag-based filtering for modifiers window (by juh9870)
+- Sorting options for modifiers window (by juh9870)
+- Rankings for individual trials (by juh9870)
+- Counters to track wins and losses for trials and modifiers (by juh9870)
+
+### Changed
+
+- Buttons functionality in modifiers window string to be consistent with custom seeds (by juh9870)
+
+### Fixed
+
+- Concurrent modification exception in dungeon observe hook (by juh9870)
+
 ## [0.15.1]
 
 > Released on 2025-06-14
