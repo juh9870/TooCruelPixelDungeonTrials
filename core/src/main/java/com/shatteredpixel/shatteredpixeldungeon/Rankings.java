@@ -99,6 +99,7 @@ public enum Rankings {
 
 		DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ROOT);
 		rec.date = format.format(new Date(Game.realTime));
+		rec.timestamp = new Date(Game.realTime).getTime();
 
 		rec.cause = cause instanceof Class ? (Class)cause : cause.getClass();
 		rec.win		= win;
@@ -468,6 +469,7 @@ public enum Rankings {
 		private static final String SEED    = "custom_seed";
 		private static final String DAILY   = "daily";
 
+		private static final String TIMESTAMP    = "timestamp";
 		private static final String DATE    = "date";
 		private static final String VERSION = "version";
 
@@ -489,6 +491,7 @@ public enum Rankings {
 		public String customSeed;
 		public boolean daily;
 
+		public long timestamp;
 		public String date;
 		public String version;
 
@@ -538,6 +541,20 @@ public enum Rankings {
 				date = version = null;
 			}
 
+			if (bundle.contains(TIMESTAMP)) {
+				timestamp = bundle.getLong(TIMESTAMP);
+			} else if (date != null) {
+				timestamp = 0;
+				DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ROOT);
+				try {
+					Date lhsDate = format.parse(date);
+					if (lhsDate != null) {
+						timestamp = lhsDate.getTime();
+					}
+				} catch (ParseException ignored) {
+				}
+			}
+
 			if (bundle.contains(DATA))  gameData = bundle.getBundle(DATA);
 			if (bundle.contains(ID))   gameID = bundle.getString(ID);
 			
@@ -561,6 +578,7 @@ public enum Rankings {
 			bundle.put( DEPTH, depth );
 			bundle.put( ASCEND, ascending );
 
+			bundle.put( TIMESTAMP, timestamp);
 			bundle.put( DATE, date );
 			bundle.put( VERSION, version );
 
@@ -572,25 +590,7 @@ public enum Rankings {
 	public static final Comparator<Record> scoreComparator = new Comparator<Rankings.Record>() {
 		@Override
 		public int compare( Record lhs, Record rhs ) {
-			DateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.ROOT);
-			long lhsTime = 0;
-			long rhsTime = 0;
-			try {
-				Date lhsDate = format.parse(lhs.date);
-				if (lhsDate != null) {
-					lhsTime = lhsDate.getTime();
-				}
-			} catch (ParseException ignored) {
-			}
-			try {
-				Date rhsDate = format.parse(rhs.date);
-				if (rhsDate != null) {
-					rhsTime = rhsDate.getTime();
-				}
-			} catch (ParseException ignored) {
-			}
-
-			int result = (int)Math.signum( rhsTime - lhsTime );
+			int result = (int)Math.signum( rhs.timestamp - lhs.timestamp );
 			if (result == 0) {
 				return (int)Math.signum( rhs.gameID.hashCode() - lhs.gameID.hashCode());
 			} else {
