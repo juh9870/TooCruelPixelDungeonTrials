@@ -1,14 +1,10 @@
 {
   "name": "Extreme",
-  "version": 2,
+  "version": 3,
   "trials": [
     {
       "name": "The Broken Shield",
       "modifiers": "6MTMFXtDhU7"
-    },
-    {
-      "name": "Crystal Crusher",
-      "modifiers": "Cs3Ub"
     },
     {
       "name": "The Challenger",
