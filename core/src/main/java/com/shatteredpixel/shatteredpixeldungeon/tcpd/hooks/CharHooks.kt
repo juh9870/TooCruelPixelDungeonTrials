@@ -44,6 +44,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DelayedBeckon
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DrRollBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.FullSceneUpdater
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.HtBoostBuff
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.HydraBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.InsomniaSlowdown
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.InsomniaSpeed
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Intoxication
@@ -568,6 +569,9 @@ fun Mob.applyModifiers() {
         if (buff(Resizing::class.java) == null) {
             Buff.affect(this, Resizing::class.java).multiplyRandom()
         }
+    }
+    if (Modifier.HYDRA.active()) {
+        Buff.affect(this, HydraBuff.EnemyTracker::class.java)
     }
 }
 

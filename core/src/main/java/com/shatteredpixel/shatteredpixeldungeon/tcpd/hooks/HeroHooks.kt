@@ -260,10 +260,11 @@ fun Hero.earnExpHook(
     val newExp = fExp.toInt()
 
     if (!AscensionChallenge::class.java.isAssignableFrom(source)) {
-        if (newExp > exp) {
-            sprite.showStatusWithIcon(CharSprite.POSITIVE, "$exp", FloatingText.EXPERIENCE)
-        } else {
-            sprite.showStatusWithIcon(CharSprite.NEGATIVE, "-$exp", FloatingText.EXPERIENCE)
+        val diff = newExp - exp
+        if (diff > 0) {
+            sprite.showStatusWithIcon(CharSprite.POSITIVE, "$diff", FloatingText.EXPERIENCE)
+        } else if (diff < 0) {
+            sprite.showStatusWithIcon(CharSprite.NEGATIVE, "$diff", FloatingText.EXPERIENCE)
         }
     }
 

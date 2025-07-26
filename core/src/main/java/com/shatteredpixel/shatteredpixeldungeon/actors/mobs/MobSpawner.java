@@ -39,6 +39,11 @@ public class MobSpawner extends Actor {
 	@Override
 	protected boolean act() {
 
+		if(Modifier.INFERTILITY.active()) {
+			diactivate();
+			return true;
+		}
+
 		if (Dungeon.level.mobCount() < Dungeon.level.mobLimit() || Modifier.FRACTAL_HIVE.active()) {
 
 			if (Dungeon.level.spawnMob(12)){

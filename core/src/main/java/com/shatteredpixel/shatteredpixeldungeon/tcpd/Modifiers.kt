@@ -186,6 +186,8 @@ enum class Modifier(
         dependencies = arrayOf(REPOPULATION.id),
         tags = arrayOf(Tag.EXTREME, Tag.ENEMY),
     ),
+    INFERTILITY(90, tags = arrayOf(Tag.ENEMY)),
+    HYDRA(91, dependencies = arrayOf(INFERTILITY.id), tags = arrayOf(Tag.ENEMY)),
     CROOKED_DIE(67, tags = arrayOf(Tag.SILLY, Tag.RNG)),
     CRUMBLED_STAIRS(68, tags = arrayOf(Tag.DUNGEON)),
     MULTICLASSING(69, tags = arrayOf(Tag.SILLY, Tag.HERO)),
@@ -213,7 +215,7 @@ enum class Modifier(
         override fun _nMobsMult(): Float = 0f
     },
     UNINSPIRED_TO_LEARN(89, tags = arrayOf(Tag.HERO, Tag.BOSS)),
-    // Next ID: 90
+    // Next ID: 92
     ;
 
     val tags = Tag.process(dependencies.isNotEmpty(), tags)
@@ -281,6 +283,7 @@ enum class Modifier(
             }
 
             addConflict(ABANDONED_SHIP, HORDE)
+            addConflict(INFERTILITY, REPOPULATION)
         }
 
         fun fromVanilla(challengeId: Int): Modifier =
