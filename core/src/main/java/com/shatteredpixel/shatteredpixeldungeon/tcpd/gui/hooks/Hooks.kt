@@ -7,7 +7,7 @@ class HookState : MemoryFrameListener {
     val values: MutableList<RawHookRef> = mutableListOf()
     var index: Int = 0
 
-    inline fun <reified T : Any> get(tracker: Any): MutableHookRef<T> {
+    inline fun <reified T> get(tracker: Any): MutableHookRef<T> {
         if (index > values.size) {
             throw IllegalStateException("Hook index out of bounds")
         } else if (index == values.size) {
@@ -42,7 +42,7 @@ class RawHookRef(
 )
 
 @JvmInline
-value class HookRef<T : Any>(
+value class HookRef<T>(
     private val hook: MutableHookRef<T>,
 ) {
     /**
@@ -81,7 +81,7 @@ value class HookRef<T : Any>(
 }
 
 @JvmInline
-value class MutableHookRef<T : Any>(
+value class MutableHookRef<T>(
     private val hook: RawHookRef,
 ) {
     /**

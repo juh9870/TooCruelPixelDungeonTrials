@@ -22,7 +22,7 @@ inline fun <reified T : Any> Ui.useState(
         get<T>(tracker).apply { getOrInitWith(init) }
     }
 
-inline fun <reified T : Any> Ui.useMemo(
+inline fun <reified T> Ui.useMemo(
     tracker: Any,
     crossinline init: () -> T,
 ): HookRef<T> =

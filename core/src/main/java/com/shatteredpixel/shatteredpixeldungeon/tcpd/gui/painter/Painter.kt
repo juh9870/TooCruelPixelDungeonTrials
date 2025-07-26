@@ -133,6 +133,17 @@ class Painter internal constructor(
         component: ComponentConstructor,
     ): Component = add(id, VisualElement.Component(rect, component)) as Component
 
+    fun drawFlare(
+        id: UiId,
+        pos: Pos2,
+        rays: Int,
+        radius: Float,
+    ): com.shatteredpixel.shatteredpixeldungeon.effects.Flare =
+        add(
+            id,
+            VisualElement.Flare(pos, rays, radius),
+        ) as com.shatteredpixel.shatteredpixeldungeon.effects.Flare
+
     fun getGroup(): Group? = group
 
     private fun add(
@@ -187,6 +198,12 @@ internal sealed class VisualElement {
     data class BitmapText(
         val rect: Rect,
         val text: String,
+    ) : VisualElement()
+
+    data class Flare(
+        val pos: Pos2,
+        val rays: Int,
+        val radius: Float,
     ) : VisualElement()
 
     data class Group(
@@ -335,7 +352,6 @@ internal sealed class VisualElement {
             is BitmapText -> {
                 if (cached?.first is BitmapText && cached.second is com.watabou.noosa.BitmapText) {
                     val block = cached.second as com.watabou.noosa.BitmapText
-                    val old = cached.first as BitmapText
 
                     if (block.text() != text) {
                         block.text(text)
@@ -349,6 +365,27 @@ internal sealed class VisualElement {
                 block.x = rect.min.x.toFloat()
                 block.y = rect.min.y.toFloat()
                 return block
+            }
+
+            is Flare -> {
+                if (cached?.first is Flare && cached.second is com.shatteredpixel.shatteredpixeldungeon.effects.Flare) {
+                    val flare = cached.first as Flare
+                    val flareGizmo =
+                        cached.second as com.shatteredpixel.shatteredpixeldungeon.effects.Flare
+                    if (flare.rays == rays && flare.radius == radius) {
+                        flareGizmo.x = pos.x.toFloat()
+                        flareGizmo.y = pos.y.toFloat()
+                        return flareGizmo
+                    }
+                }
+                val flareGizmo =
+                    com.shatteredpixel.shatteredpixeldungeon.effects.Flare(
+                        rays,
+                        radius,
+                    )
+                flareGizmo.x = pos.x.toFloat()
+                flareGizmo.y = pos.y.toFloat()
+                return flareGizmo
             }
         }
     }

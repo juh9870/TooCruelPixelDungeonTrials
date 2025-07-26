@@ -10,6 +10,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.TCPDScores
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Trial
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.TcpdWindow
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Vec2
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.useMemo
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Ui
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.TextureDescriptor
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.descriptor
@@ -17,6 +18,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.PaginatedList
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.bitmapLabel
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.customButton
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.fixedSize
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.flare
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.horizontal
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.image
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.label
@@ -49,6 +51,15 @@ class WndTCPDRankings(
 
             top().addSpace(2)
 
+            val latestRecord by useMemo<Rankings.Record?>(Unit) {
+                Rankings.INSTANCE.load()
+                if (Rankings.INSTANCE.lastRecord < Rankings.INSTANCE.records.size) {
+                    Rankings.INSTANCE.records[Rankings.INSTANCE.lastRecord]
+                } else {
+                    null
+                }
+            }
+
             val score = score
             if (score == null) {
                 val text = label(Messages.get(WndTCPDRankings::class.java, "no_games"), 8)
@@ -56,7 +67,8 @@ class WndTCPDRankings(
             } else {
                 val records = score.load()
                 PaginatedList(records.size, 16).show(this) {
-                    record(records[it], it)
+                    val rec = records[it]
+                    record(rec, it, rec.gameID == latestRecord?.gameID)
                 }
             }
         }
@@ -65,6 +77,7 @@ class WndTCPDRankings(
     private fun Ui.record(
         record: Rankings.Record,
         pos: Int,
+        latest: Boolean,
     ) {
         val odd = pos % 2
 
@@ -99,7 +112,6 @@ class WndTCPDRankings(
 
         customButton {
             rightToLeft {
-                val animDur = top().style().interactionAnimationDuration
                 withLayout { }
                 fixedSize(Vec2(16, 16)) {
                     stackJustified {
@@ -128,6 +140,12 @@ class WndTCPDRankings(
                 horizontal {
                     fixedSize(Vec2(16, 16)) {
                         stackJustified {
+                            if (latest) {
+                                flare(6, 24f).let { flare ->
+                                    flare.widget.angularSpeed = 90f
+                                    flare.widget.color(if (record.win) FLARE_WIN else FLARE_LOSE)
+                                }
+                            }
                             val shieldImg = image(shield)
                             shieldImg.widget.hardlight(hr, hg, hb)
                             val l = bitmapLabel((pos + 1).toString())
@@ -156,5 +174,7 @@ class WndTCPDRankings(
     companion object {
         private val TEXT_WIN: IntArray = intArrayOf(0xFFFF88, 0xB2B25F)
         private val TEXT_LOSE: IntArray = intArrayOf(0xDDDDDD, 0x888888)
+        const val FLARE_WIN: Int = 0x888866
+        const val FLARE_LOSE: Int = 0x666666
     }
 }
