@@ -216,7 +216,12 @@ enum class Modifier(
     },
     UNINSPIRED_TO_LEARN(89, tags = arrayOf(Tag.HERO, Tag.BOSS)),
     PROTECTED_GOODS(92, tags = arrayOf(Tag.ITEM, Tag.BOSS, Tag.DUNGEON)),
-    // Next ID: 93
+    BOSS_RUSH(
+        93,
+        dependencies = arrayOf(HEAD_START.id, PROTECTED_GOODS.id),
+        tags = arrayOf(Tag.ITEM, Tag.BOSS, Tag.DUNGEON),
+    ),
+    // Next ID: 94
     ;
 
     val tags = Tag.process(dependencies.isNotEmpty(), tags)

@@ -273,6 +273,7 @@ fun Level.activateTransitionHook(
     }
     val crumbling = Modifier.CRUMBLED_STAIRS.active()
     val prison = Modifier.PRISON_EXPRESS.active()
+    val bossRush = Modifier.BOSS_RUSH.active()
     if (Statistics.amuletObtained) {
         if (crumbling && transition.destDepth >= Dungeon.depth) {
             Game.runOnRenderThread {
@@ -288,7 +289,14 @@ fun Level.activateTransitionHook(
             return false
         }
     } else {
-        if ((crumbling || (prison && Dungeon.depth <= 6)) && transition.type == LevelTransition.Type.REGULAR_ENTRANCE) {
+        if (
+            (
+                crumbling ||
+                    (prison && Dungeon.depth <= 6) ||
+                    (bossRush && Dungeon.depth % 5 == 0)
+            ) &&
+            transition.type == LevelTransition.Type.REGULAR_ENTRANCE
+        ) {
             Game.runOnRenderThread {
                 GameScene.show(
                     WndMessage(

@@ -23,6 +23,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Arrowhead
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.BossRush
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.BrimstoneNeutralizer
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.CasualApproach
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.ControlledRandomness
@@ -83,6 +84,9 @@ fun Hero.heroLiveHook() {
     }
     if (Modifier.PRISON_EXPRESS.active()) {
         Buff.affect(this, PrisonExpress::class.java)
+    }
+    if (Modifier.BOSS_RUSH.active()) {
+        Buff.affect(this, BossRush::class.java)
     }
     if (Modifier.CASUAL_APPROACH.active()) {
         Buff.affect(this, CasualApproach::class.java)

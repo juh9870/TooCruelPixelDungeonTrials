@@ -26,7 +26,6 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.LevelCreationHooks
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.headStartRequiredPoS
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.headStartRequiredSoU
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.items.IOU
-import com.watabou.utils.DeviceCompat
 import com.watabou.utils.Random
 
 @LevelCreationHooks
@@ -73,13 +72,15 @@ fun Level.applySecondTry() {
 fun Level.applyProtectedGoods() {
     if (isLevelBossOrSpecial()) return
 
+    val bossRush = Modifier.BOSS_RUSH.active()
     val headstart = Modifier.HEAD_START.active() && Dungeon.depth == 1
     var allowedPoS = if (headstart) headStartRequiredPoS() else 0
     var allowedSoU = if (headstart) headStartRequiredSoU() else 0
     transformItems {
-        val isSpecial = it is ScrollOfUpgrade || it is PotionOfStrength || it is Stylus
-        val allItems = DeviceCompat.isDebug() && it !is Key
-        if (isSpecial || allItems) {
+        if (
+            (bossRush && it !is Key) ||
+            (it is ScrollOfUpgrade || it is PotionOfStrength || it is Stylus)
+        ) {
             if (headstart && it is ScrollOfUpgrade && allowedSoU > 0) {
                 allowedSoU--
                 return@transformItems it
