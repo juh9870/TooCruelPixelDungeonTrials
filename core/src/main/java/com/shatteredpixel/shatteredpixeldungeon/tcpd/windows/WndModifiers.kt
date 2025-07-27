@@ -63,7 +63,7 @@ open class WndModifiers(
     constructor(data: TCPDGameInfoData) : this(data.modifiers, data.trials, false)
 
     init {
-        maxSize = Vec2(120, (PixelScene.uiCamera.height * 0.9f).toInt())
+        maxSize = Vec2(125, (PixelScene.uiCamera.height * 0.9f).toInt())
     }
 
     override fun Ui.drawUi() {
