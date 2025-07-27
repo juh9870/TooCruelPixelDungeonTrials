@@ -68,7 +68,8 @@ fun Level.applyJackInTheBox() {
                 .contains(Char.Property.MINIBOSS) ||
             mob
                 .properties()
-                .contains(Char.Property.IMMOVABLE)
+                .contains(Char.Property.IMMOVABLE) ||
+            mob is Mimic
         ) {
             continue
         }
@@ -135,7 +136,7 @@ fun Level.applyRecursiveHierarchy() {
     for (mob in mobs.toTypedArray()) {
         if (mob is Mimic) {
             var newMob: Mob = mob
-            val maxRecursion = Dungeon.scalingDepth() / 5 + 2
+            val maxRecursion = Dungeon.scalingDepth() / 5
             var steps = 0
             while ((Random.Float() < 0.5 || DeviceCompat.isDebug()) && steps++ < maxRecursion) {
                 val heap = StoredHeapData.fromMob(newMob)
