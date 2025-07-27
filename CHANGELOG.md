@@ -26,7 +26,7 @@
 - Skeleton Crew and Abandoned Ship modifiers
 - Infertility and Hydra modifiers
 - Protected Goods modifier
-- Perfect Information and Thoughtless modifiers
+- Complete Knowledge and Thoughtless modifiers
 - Uninspired to Learn modifier
 
 ### Changed
