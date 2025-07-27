@@ -26,6 +26,8 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.LevelCreationHooks
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.headStartRequiredPoS
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.headStartRequiredSoU
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.items.IOU
+import com.shatteredpixel.shatteredpixeldungeon.utils.GLog
+import com.watabou.utils.PathFinder
 import com.watabou.utils.Random
 
 @LevelCreationHooks
@@ -94,6 +96,38 @@ fun Level.applyProtectedGoods() {
         } else {
             it
         }
+    }
+
+    if (bossRush && Dungeon.depth == 1) {
+        var last = 0
+        for (i in 0 until length()) {
+            val t = map[i]
+            last = i
+            if (t == Terrain.LOCKED_DOOR) {
+                set(i, Terrain.DOOR, this)
+            } else if (t == Terrain.CRYSTAL_DOOR) {
+                set(i, Terrain.EMPTY, this)
+            } else if (t == Terrain.BARRICADE) {
+                set(i, Terrain.EMBERS, this)
+            } else if (t == Terrain.TRAP || t == Terrain.SECRET_TRAP) {
+                var near = 0
+                for (o in PathFinder.NEIGHBOURS4) {
+                    val ot = map[i + o]
+                    if (ot == Terrain.TRAP || ot == Terrain.INACTIVE_TRAP || t == Terrain.SECRET_TRAP) near++
+                }
+
+                // deactivate traps near at least two other traps
+                if (near >= 2) {
+                    val trap = traps.get(i)
+                    trap?.visible = true
+                    trap?.active = false
+                    set(i, Terrain.INACTIVE_TRAP, this)
+                }
+            } else if (t == Terrain.CHASM) {
+                set(i, Terrain.EMPTY_SP, this)
+            }
+        }
+        GLog.i("$last")
     }
 }
 
