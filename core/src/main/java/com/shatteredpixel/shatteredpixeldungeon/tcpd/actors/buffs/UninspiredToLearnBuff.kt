@@ -20,8 +20,9 @@ class UninspiredToLearnBuff :
 
     override fun onBossSlain() {
         val hero = target as? Hero ?: return
-        // full free level of xp
-        val expToGive = hero.maxExp()
+        // 3 levels worth of exp
+        val expToGive =
+            Hero.maxExp(hero.lvl) + Hero.maxExp(hero.lvl + 1) + Hero.maxExp(hero.lvl + 2)
         hero.sprite.showStatusWithIcon(
             CharSprite.POSITIVE,
             expToGive.toString(),
