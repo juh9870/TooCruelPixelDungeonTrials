@@ -12,7 +12,7 @@
 
 ### Changed
 
-- Boss Rushg now solves puzzle rooms on floor 1 (by juh9870)
+- Boss Rush now solves puzzle rooms on floor 1 (by juh9870)
 - Jack-in-the-box can no longer store mimics inside of another Mimic (by juh9870)
 - Made modifiers window 5 pixels wider (by juh9870)
 - Buffed Uninspired to Learn to give 3 levels of XP instead of just one (by juh9870)
