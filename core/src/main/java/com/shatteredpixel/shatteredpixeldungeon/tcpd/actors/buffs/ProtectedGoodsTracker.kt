@@ -5,6 +5,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Awareness
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
 import com.shatteredpixel.shatteredpixeldungeon.items.Item
+import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.furrowCell
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.mimicsEncaseHeap
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.weightedPair
@@ -44,7 +45,14 @@ class ProtectedGoodsTracker :
         for (i in 0 until Dungeon.level.length()) {
             val distance = PathFinder.distance[i]
             if (distance <= 0) continue
-            if (distance < Int.MAX_VALUE && !Dungeon.level.pit[i] && Dungeon.level.getTransition(i) == null) {
+            val terrain = Dungeon.level.map[i]
+            if (
+                distance < Int.MAX_VALUE &&
+                !Dungeon.level.pit[i] &&
+                terrain != Terrain.TRAP &&
+                terrain != Terrain.SECRET_TRAP &&
+                Dungeon.level.getTransition(i) == null
+            ) {
                 validCells.add(weightedPair(1f / distance.toFloat().pow(1), i))
             }
         }
@@ -61,6 +69,7 @@ class ProtectedGoodsTracker :
             val item = items[i]
             val cell = validCells[i % validCells.size].second
             Dungeon.level.furrowCell(cell)
+            Dungeon.level.pressCell(cell)
             val heap = Dungeon.level.drop(item, cell)
             // in case of mimics modifiers
             if (Dungeon.level.mimicsEncaseHeap(heap)) {
