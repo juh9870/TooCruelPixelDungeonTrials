@@ -6,6 +6,24 @@
 
 > Released on ReleaseDate
 
+### Added
+
+- 9chal and Boss Hunt trials (by juh9870)
+
+### Changed
+
+- Boss Rushg now solves puzzle rooms on floor 1 (by juh9870)
+- Jack-in-the-box can no longer store mimics inside of another Mimic (by juh9870)
+- Made modifiers window 5 pixels wider (by juh9870)
+- Buffed Uninspired to Learn to give 3 levels of XP instead of just one (by juh9870)
+- Recursive Hierarchy now starts at 1 max depth in Sewers and goes up to 5 in Halls (by juh9870)
+
+### Fixed
+
+- Over the Edge deleting cells under items (by juh9870)
+- Protected goods spawning items on the Tengu level exit, resulting in them being unavailable (by juh9870)
+- Grass not getting visually furrowed by Protected Goods (by juh9870)
+
 ## [0.16.1]
 
 > Released on 2025-07-27
