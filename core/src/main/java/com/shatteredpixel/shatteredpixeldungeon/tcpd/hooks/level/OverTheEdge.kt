@@ -180,7 +180,7 @@ fun Level.applyOverTheEdge() {
     }
 
     for (i in toDelete) {
-        if (Random.Float() < 0.8f) {
+        if (Random.Float() < 0.8f && !heaps.containsKey(i)) {
             map[i] = Terrain.CHASM
         }
     }
