@@ -1,7 +1,15 @@
 {
   "name": "Hard",
-  "version": 2,
+  "version": 3,
   "trials": [
+    {
+      "name": "Boss Hunt",
+      "modifiers": "1Yk2GkGr6rWo1DZV"
+    },
+    {
+      "name": "9chal",
+      "modifiers": "LSj"
+    },
     {
       "name": "Mimic Madness",
       "modifiers": "11112V29M"
