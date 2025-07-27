@@ -6,23 +6,27 @@
 
 > Released on ReleaseDate
 
+## [0.16.2]
+
+> Released on 2025-07-27
+
 ### Added
 
-- 9chal and Boss Hunt trials (by juh9870)
+- 9chal and Boss Hunt trials
 
 ### Changed
 
-- Boss Rush now solves puzzle rooms on floor 1 (by juh9870)
-- Jack-in-the-box can no longer store mimics inside of another Mimic (by juh9870)
-- Made modifiers window 5 pixels wider (by juh9870)
-- Buffed Uninspired to Learn to give 3 levels of XP instead of just one (by juh9870)
-- Recursive Hierarchy now starts at 1 max depth in Sewers and goes up to 5 in Halls (by juh9870)
+- Boss Rush now solves puzzle rooms on floor 1
+- Jack-in-the-box can no longer store mimics inside of another Mimic
+- Made modifiers window 5 pixels wider
+- Buffed Uninspired to Learn to give 3 levels of XP instead of just one
+- Recursive Hierarchy now starts at 1 max depth in Sewers and goes up to 5 in Halls
 
 ### Fixed
 
-- Over the Edge deleting cells under items (by juh9870)
-- Protected goods spawning items on the Tengu level exit, resulting in them being unavailable (by juh9870)
-- Grass not getting visually furrowed by Protected Goods (by juh9870)
+- Over the Edge deleting cells under items
+- Protected goods spawning items on the Tengu level exit, resulting in them being unavailable
+- Grass not getting visually furrowed by Protected Goods
 
 ## [0.16.1]
 
@@ -456,7 +460,8 @@
 - Project seeded on top of Shattered Pixel Dungeon v3.0.0
 
 <!-- next-url -->
-[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.16.1...HEAD
+[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.16.2...HEAD
+[0.16.2]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.16.1...TCPD-0.16.2
 [0.16.1]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.16.0...TCPD-0.16.1
 [0.16.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.16.0-beta.1...TCPD-0.16.0
 [0.16.0-beta.1]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.15.1...TCPD-0.16.0-beta.1
