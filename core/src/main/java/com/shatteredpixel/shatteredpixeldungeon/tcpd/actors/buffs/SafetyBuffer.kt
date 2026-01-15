@@ -130,15 +130,17 @@ class SafetyBuffer : Buff() {
             val origin = target.sprite.center()
             origin.y -= target.sprite.camera().screenHeight()
 
-            target.sprite.parent.add(
-                Lightning(
-                    origin,
-                    target.sprite.center(),
-                    null,
-                ),
-            )
-            Sample.INSTANCE.play(Assets.Sounds.LIGHTNING)
-            Sample.INSTANCE.play(Assets.Sounds.BLAST)
+            if (Dungeon.level.heroFOV[target.pos]) {
+                target.sprite?.parent?.add(
+                    Lightning(
+                        origin,
+                        target.sprite.center(),
+                        null,
+                    ),
+                )
+                Sample.INSTANCE.play(Assets.Sounds.LIGHTNING)
+                Sample.INSTANCE.play(Assets.Sounds.BLAST)
+            }
             detach()
             return true
         }
