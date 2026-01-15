@@ -6,7 +6,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.isLevelBossOrSpecial
 
 class ForcedPacifismBuff :
     Buff(),
-    InvulnerabilityBuff {
+    DamageAmplificationBuff {
     override fun attachTo(target: Char): Boolean {
         super.attachTo(target).let {
             if (!it) return false
@@ -35,5 +35,5 @@ class ForcedPacifismBuff :
         return true
     }
 
-    override fun isInvulnerable(effect: Class<out Any>): Boolean = true
+    override fun damageMultiplier(source: Any?): Float = 0f
 }

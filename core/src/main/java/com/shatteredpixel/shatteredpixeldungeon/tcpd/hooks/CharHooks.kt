@@ -208,46 +208,51 @@ fun Char.damageTakenHook(
     } else if (this is Hero && Modifier.PLAGUE.active() && dmg > 0) {
         Buff.affect(this, Intoxication::class.java)
     }
+
+    if (Modifier.WHIPLASH.active()) {
+        doWhiplash(src)
+    }
+
     if (dmg > 0) {
-        if (Modifier.WHIPLASH.active()) {
-            val fov = this.updateFov(Dungeon.level)
-
-            val charPositions = mutableListOf<Int>()
-            for (char in Actor.chars()) {
-                if (fov[char.pos] && char != this && Dungeon.level.distance(pos, char.pos) > 1) {
-                    charPositions.add(char.pos)
-                }
-            }
-
-            val targetCell =
-                if (charPositions.isNotEmpty()) {
-                    Random.element(charPositions)
-                } else {
-                    val solid = Dungeon.level.solid
-                    val validCells = mutableListOf<Int>()
-                    for (i in 0 until Dungeon.level.length()) {
-                        if (fov[i] && solid[i]) {
-                            validCells.add(i)
-                        }
-                    }
-                    Random.element(validCells)
-                }
-
-            if (targetCell != null) {
-                val trajectory =
-                    Ballistica(
-                        pos,
-                        targetCell,
-                        Ballistica.MAGIC_BOLT,
-                    )
-
-                WandOfBlastWave.throwChar(this, trajectory, 999, true, false, src)
-            }
-        }
-
         forEachBuff<OnDamageTakenBuff> {
             it.onDamageTaken(dmg, src)
         }
+    }
+}
+
+fun Char.doWhiplash(src: Any?) {
+    val fov = this.updateFov(Dungeon.level)
+
+    val charPositions = mutableListOf<Int>()
+    for (char in Actor.chars()) {
+        if (fov[char.pos] && char != this && Dungeon.level.distance(pos, char.pos) > 1) {
+            charPositions.add(char.pos)
+        }
+    }
+
+    val targetCell: Int? =
+        if (charPositions.isNotEmpty()) {
+            Random.element(charPositions)
+        } else {
+            val solid = Dungeon.level.solid
+            val validCells = mutableListOf<Int>()
+            for (i in 0 until Dungeon.level.length()) {
+                if (fov[i] && solid[i] && Dungeon.level.distance(pos, i) > 1) {
+                    validCells.add(i)
+                }
+            }
+            Random.element(validCells)
+        }
+
+    if (targetCell != null) {
+        val trajectory =
+            Ballistica(
+                pos,
+                targetCell,
+                Ballistica.MAGIC_BOLT,
+            )
+
+        WandOfBlastWave.throwChar(this, trajectory, 999, true, false, src)
     }
 }
 
