@@ -6,9 +6,13 @@
 
 > Released on ReleaseDate
 
+## [0.17.2]
+
+> Released on 2026-01-15
+
 ### Fixed
 
-- Modifier randomization was locked until the first win (by juh9870)
+- Modifier randomization was locked until the first win
 
 ## [0.17.1]
 
@@ -492,7 +496,8 @@
 - Project seeded on top of Shattered Pixel Dungeon v3.0.0
 
 <!-- next-url -->
-[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.17.1...HEAD
+[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.17.2...HEAD
+[0.17.2]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.17.1...TCPD-0.17.2
 [0.17.1]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.17.0...TCPD-0.17.1
 [0.17.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.16.2...TCPD-0.17.0
 [0.16.2]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.16.1...TCPD-0.16.2
