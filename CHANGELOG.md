@@ -6,6 +6,11 @@
 
 > Released on ReleaseDate
 
+### Changed
+
+- Whiplash now triggers on 0 damage hits (by juh9870)
+- Forced Pacifism changed to reduce damage to 0 instead of giving invulnerability (by juh9870)
+
 ## [0.17.2]
 
 > Released on 2026-01-15
