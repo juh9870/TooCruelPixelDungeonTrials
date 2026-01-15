@@ -19,7 +19,8 @@ import kotlin.math.max
 fun Level.applyOverTheEdge() {
     if (isLevelBossOrSpecial()) return
     buildFlagMaps()
-    val importantCells = mutableSetOf<Int>()
+    // Cells that aren't required to be accessible but still can't be set to void
+    val noVoidCells = mutableSetOf<Int>()
     val voidCellsSet = mutableSetOf<Int>()
 
     val entrance = getTransition(LevelTransition.Type.REGULAR_ENTRANCE).cell()
@@ -44,44 +45,44 @@ fun Level.applyOverTheEdge() {
             terrain == Terrain.PEDESTAL ||
             terrain == Terrain.WELL
         ) {
-            importantCells.add(i)
+            noVoidCells.add(i)
             technicallyPassable[i] = true
             for (o in PathFinder.NEIGHBOURS4) {
                 if (passable[i + o]) {
-                    importantCells.add(i + o)
+                    noVoidCells.add(i + o)
                 }
             }
         }
     }
     for (p in plants) {
-        importantCells.add(p.key)
+        noVoidCells.add(p.key)
     }
     for (mob in mobs) {
         // NPCs are not passable, but their neighbours are important
         if (mob is NPC) {
             voidCellsSet.remove(mob.pos)
             technicallyPassable[mob.pos] = false
-            importantCells.remove(mob.pos)
+            noVoidCells.remove(mob.pos)
             for (i in PathFinder.NEIGHBOURS4) {
                 if (technicallyPassable[mob.pos + i]) {
-                    importantCells.add(mob.pos + i)
+                    noVoidCells.add(mob.pos + i)
                 }
             }
         } else {
-            importantCells.add(mob.pos)
+            noVoidCells.add(mob.pos)
         }
     }
     for (h in heaps) {
-        importantCells.add(h.key)
+        noVoidCells.add(h.key)
     }
 
     for (t in traps.entries()) {
-        importantCells.add(t.key)
+        noVoidCells.add(t.key)
         technicallyPassable[t.key] = true
         if (t.value is GatewayTrap || t.value is GrimTrap) {
             for (i in PathFinder.NEIGHBOURS4) {
                 if (technicallyPassable[t.key + i]) {
-                    importantCells.add(t.key + i)
+                    noVoidCells.add(t.key + i)
                 }
             }
         }
@@ -91,7 +92,7 @@ fun Level.applyOverTheEdge() {
         for (x in customTile.tileX until customTile.tileX + customTile.tileW) {
             for (y in customTile.tileY until customTile.tileY + customTile.tileH) {
                 val cell = x + y * width()
-                importantCells.add(cell)
+                noVoidCells.add(cell)
             }
         }
     }
@@ -100,8 +101,13 @@ fun Level.applyOverTheEdge() {
     Random.shuffle(randomDestinations)
     for (i in 0 until randomDestinations.size / 10) {
         val cell = randomDestinations[i]
-        importantCells.add(cell)
+        noVoidCells.add(cell)
     }
+
+    // Important cells that must remain accessible. Includes all no-void cells
+    // that are accessible normally, plus entrances and the cells around them
+    val importantCells = mutableSetOf<Int>()
+    importantCells.addAll(noVoidCells)
 
     PathFinder.buildDistanceMap(entrance, technicallyPassable)
     importantCells.iterator().let {
@@ -129,6 +135,7 @@ fun Level.applyOverTheEdge() {
     }
 
     voidCellsSet.removeAll(importantCells)
+    voidCellsSet.removeAll(noVoidCells)
     val pickedIndices = mutableSetOf<Int>()
 
     val maxTries = 100
@@ -138,7 +145,7 @@ fun Level.applyOverTheEdge() {
 
     val toDelete = mutableSetOf<Int>()
 
-    while (voidCellsSet.size > 0 && tries < maxTries) {
+    while (voidCellsSet.isNotEmpty() && tries < maxTries) {
         val voidCells = voidCellsSet.toList()
         val batchSize =
             if (tries > maxTries / 2) {
