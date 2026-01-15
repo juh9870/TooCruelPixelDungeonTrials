@@ -29,6 +29,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.Sickle;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.Chasm;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
@@ -138,6 +139,9 @@ public class Bleeding extends Buff {
 
 	@Override
 	public String desc() {
+        if(Modifier.CROOKED_DIE.active()) {
+            return Messages.get(this, "crooked_die_desc", Messages.get(this, "desc", Math.round(level)));
+        }
 		return Messages.get(this, "desc", Math.round(level));
 	}
 }
