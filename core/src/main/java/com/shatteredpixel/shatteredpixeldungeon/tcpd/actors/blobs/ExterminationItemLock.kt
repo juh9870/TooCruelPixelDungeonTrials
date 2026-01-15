@@ -64,11 +64,14 @@ class ExterminationItemLock :
             }
 
             if (added > 0) {
-                GLog.w(Messages.get(Modifier::class.java, "extermination_second_round", added))
-                Sample.INSTANCE.play(Assets.Sounds.DEGRADE, 0.5f, 1.5f)
-                Dungeon.observe()
-                GameScene.updateFog()
-                Dungeon.hero.checkVisibleMobs()
+                // only notify and update if we are operating on the "live" level
+                if (level == Dungeon.level) {
+                    GLog.w(Messages.get(Modifier::class.java, "extermination_second_round", added))
+                    Sample.INSTANCE.play(Assets.Sounds.DEGRADE, 0.5f, 1.5f)
+                    Dungeon.observe()
+                    GameScene.updateFog()
+                    Dungeon.hero.checkVisibleMobs()
+                }
                 return false
             }
         }
