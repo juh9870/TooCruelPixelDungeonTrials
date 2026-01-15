@@ -8,6 +8,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Heap
 import com.shatteredpixel.shatteredpixeldungeon.items.Item
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade
+import com.shatteredpixel.shatteredpixeldungeon.items.spells.PhaseShift
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level.TIME_TO_RESPAWN
 import com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel
@@ -42,6 +43,7 @@ import com.watabou.noosa.Game
 import com.watabou.utils.BArray
 import com.watabou.utils.GameMath
 import com.watabou.utils.PathFinder
+import com.watabou.utils.Random
 import kotlin.math.max
 import kotlin.math.min
 
@@ -122,7 +124,35 @@ fun Level.postCreateHook() {
     if (Modifier.PROTECTED_GOODS.active()) {
         applyProtectedGoods()
     }
+    if (Modifier.FORCED_PACIFISM.active()) {
+        guaranteedItemsToPlaceNearEntrance.add(PhaseShift())
+    }
+
+    placeGuaranteedItemsNearEntrance()
 }
+
+private fun Level.placeGuaranteedItemsNearEntrance() {
+    if (guaranteedItemsToPlaceNearEntrance.isEmpty()) return
+    getTransition(LevelTransition.Type.REGULAR_ENTRANCE)?.let { transition ->
+        val entrance = transition.cell()
+        val valid = mutableListOf<Int>()
+        for (o in PathFinder.NEIGHBOURS8) {
+            val pos = entrance + o
+            if (passable[pos]) {
+                valid.add(pos)
+            }
+        }
+        for (item in guaranteedItemsToPlaceNearEntrance) {
+            val targetCell = Random.element(valid) ?: entrance
+            drop(item, targetCell)
+            furrowCell(targetCell)
+        }
+    }
+    guaranteedItemsToPlaceNearEntrance.clear()
+}
+
+@OptIn(LevelCreationHooks::class)
+val guaranteedItemsToPlaceNearEntrance = mutableListOf<Item>()
 
 @Suppress("NAME_SHADOWING")
 fun Level.updateBlockingFovHook(

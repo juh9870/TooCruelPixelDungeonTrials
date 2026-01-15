@@ -187,4 +187,4 @@ private val cavesTrapChances by lazy { getTrapData(CavesLevel()) }
 private val cityTrapChances by lazy { getTrapData(CityLevel()) }
 private val hallsTrapChances by lazy { getTrapData(HallsLevel()) }
 
-fun isLevelBossOrSpecial(): Boolean = Dungeon.bossLevel() || Dungeon.depth == 26
+fun isLevelBossOrSpecial(): Boolean = Dungeon.bossLevel() || Dungeon.depth == 26 || Dungeon.branch == 1
