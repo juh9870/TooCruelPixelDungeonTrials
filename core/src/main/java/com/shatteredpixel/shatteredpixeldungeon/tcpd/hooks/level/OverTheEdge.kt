@@ -7,6 +7,8 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.LevelTransition
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.GatewayTrap
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.GrimTrap
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.ExterminationItemLock
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.findBlob
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.isLevelBossOrSpecial
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.LevelCreationHooks
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.reportRecoverableError
@@ -74,6 +76,12 @@ fun Level.applyOverTheEdge() {
     }
     for (h in heaps) {
         noVoidCells.add(h.key)
+    }
+
+    findBlob<ExterminationItemLock>()?.let { blob ->
+        for (entry in blob.lockedItems()) {
+            noVoidCells.add(entry.key)
+        }
     }
 
     for (t in traps.entries()) {

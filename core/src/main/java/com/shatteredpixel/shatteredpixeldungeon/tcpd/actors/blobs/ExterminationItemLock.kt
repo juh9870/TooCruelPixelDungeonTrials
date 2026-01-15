@@ -130,6 +130,8 @@ class ExterminationItemLock :
         statue.sprite?.killAndErase()
     }
 
+    fun lockedItems(): Map<Int, StoredHeapData> = originalHeaps
+
     override fun emit(
         emitter: BlobEmitter,
         factory: Emitter.Factory,
