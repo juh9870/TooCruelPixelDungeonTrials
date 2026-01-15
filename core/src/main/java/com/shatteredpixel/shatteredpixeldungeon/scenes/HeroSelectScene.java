@@ -830,7 +830,7 @@ public class HeroSelectScene extends PixelScene {
 					@Override
 					protected void onClick() {
 
-						if (Badges.isUnlocked(Badges.Badge.VICTORY) || DeviceCompat.isDebug()){
+						if (Badges.isUnlocked(Badges.Badge.VICTORY) || DeviceCompat.isDebug() || true){
 							ShatteredPixelDungeon.scene().addToFront(new WndRandomize());
 						} else {
 
