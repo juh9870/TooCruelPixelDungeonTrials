@@ -29,6 +29,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ChaoticCenser;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.SaltCube;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.HeroHooksKt;
+import com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel;
 import com.watabou.utils.Bundle;
 
 public class Regeneration extends Buff {
@@ -90,9 +91,10 @@ public class Regeneration extends Buff {
 				partialRegen += 1f / delay;
 
 				if (partialRegen >= 1) {
-					target.HP += 1;
-					partialRegen--;
-					if (target.HP == regencap()) {
+					target.HP += (int)partialRegen;
+					partialRegen -= (int)partialRegen;
+					if (target.HP >= regencap()) {
+						target.HP = regencap();
 						((Hero) target).resting = false;
 					}
 				}
@@ -117,6 +119,9 @@ public class Regeneration extends Buff {
 	public static boolean regenOn(){
 		LockedFloor lock = Dungeon.hero.buff(LockedFloor.class);
 		if (lock != null && !lock.regenOn()){
+			return false;
+		}
+		if (Dungeon.level instanceof VaultLevel){
 			return false;
 		}
 		return true;

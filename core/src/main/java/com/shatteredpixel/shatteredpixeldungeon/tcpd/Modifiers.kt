@@ -27,6 +27,7 @@ import com.watabou.utils.BArray
 import com.watabou.utils.Bundlable
 import com.watabou.utils.Bundle
 import com.watabou.utils.DeviceCompat
+import com.watabou.utils.Random
 
 enum class Modifier(
     val id: Int,
@@ -432,6 +433,51 @@ class Modifiers() : Bundlable {
         fun decodeBits(encoded: String): BooleanArray = encoded.decodeBase58().asBits().trimEnd(false)
 
         fun debugModeActive(): Boolean = DeviceCompat.isDebug()
+
+        fun randomModifiers(amount: Int): Modifiers {
+            if (amount >= Modifier.ALL.size / 4) {
+                // Fallback to simple algorithm if too many mods are requested
+                val mods = Modifiers()
+
+                repeat(amount) {
+                    mods.enable(Random.element(Modifier.ALL))
+                }
+
+                return mods
+            }
+
+            val mods = Modifiers()
+
+            val nTries = 1000
+            repeat(nTries) { i ->
+                mods.disableAll()
+                while (mods.activeChallengesCount() < amount) {
+                    mods.enable(Random.element(Modifier.ALL))
+                }
+                // 75% chance to not allow positive modifiers and 50% chance to
+                //  not allow silly modifiers in the first half of attempts
+                if (mods.activeChallengesCount() == amount) {
+                    if (i < nTries / 2) {
+                        val roll = Random.Float()
+                        for (mod in Modifier.ALL) {
+                            if (mods.isEnabled(mod)) {
+                                if (roll < 0.5 && mod.tags.contains(Tag.SILLY)) {
+                                    return@repeat
+                                }
+                                if (roll < 0.75 && mod.tags.contains(Tag.POSITIVE)) {
+                                    return@repeat
+                                }
+                            }
+                        }
+                    }
+
+                    return mods
+                }
+            }
+            return mods
+        }
+
+        fun randomizeLimit(): Int = 9
 
         const val MODIFIERS = "modifiers"
 

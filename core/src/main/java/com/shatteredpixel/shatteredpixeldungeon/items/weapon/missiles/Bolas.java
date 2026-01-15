@@ -37,16 +37,22 @@ public class Bolas extends MissileWeapon {
 		tier = 3;
 		baseUses = 5;
 	}
-	
+
+	@Override
+	public int min(int lvl) {
+		return  2 * (tier-1) +                  //4 base, down from 6
+				0*lvl;                          //0 scaling, down from 1
+	}
+
 	@Override
 	public int max(int lvl) {
 		return  3 * tier +                      //9 base, down from 15
-				(tier == 1 ? 2*lvl : tier*lvl); //scaling unchanged
+				(tier-1)*lvl;                   //2 scaling, down from 3
 	}
 	
 	@Override
 	public int proc( Char attacker, Char defender, int damage ) {
-		Buff.prolong( defender, Cripple.class, Cripple.DURATION );
+		Buff.prolong( defender, Cripple.class, Cripple.DURATION/2 );
 		return super.proc( attacker, defender, damage );
 	}
 }

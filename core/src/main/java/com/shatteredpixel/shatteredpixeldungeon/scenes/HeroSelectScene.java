@@ -22,6 +22,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.scenes;
 
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
+import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Chrome;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress;
@@ -31,13 +32,19 @@ import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Journal;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifiers;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Trial;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Trials;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.windows.WndModifiers;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.windows.WndTrials;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator;
+import com.shatteredpixel.shatteredpixeldungeon.ui.CheckBox;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ExitButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
+import com.shatteredpixel.shatteredpixeldungeon.ui.OptionSlider;
+import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.StyledButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
@@ -57,11 +64,15 @@ import com.watabou.noosa.Game;
 import com.watabou.noosa.Image;
 import com.watabou.noosa.NinePatch;
 import com.watabou.noosa.PointerArea;
+import com.watabou.noosa.SkinnedBlock;
 import com.watabou.noosa.tweeners.Tweener;
 import com.watabou.noosa.ui.Component;
 import com.watabou.utils.DeviceCompat;
 import com.watabou.utils.GameMath;
+import com.watabou.utils.PlatformSupport;
 import com.watabou.utils.PointF;
+import com.watabou.utils.Random;
+import com.watabou.utils.RectF;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -86,6 +97,11 @@ public class HeroSelectScene extends PixelScene {
 	private GameOptions optionsPane;
 	private IconButton btnExit;
 
+	private RectF insets;
+
+	private static boolean heroWasRandomized = true;
+	private static boolean chalWasRandomized = false;
+
 	@Override
 	public void create() {
 		super.create();
@@ -94,6 +110,11 @@ public class HeroSelectScene extends PixelScene {
 
 		Badges.loadGlobal();
 		Journal.loadGlobal();
+
+		insets = Game.platform.getSafeInsets(PlatformSupport.INSET_BLK).scale(1f/defaultZoom);
+
+		float w = (Camera.main.width - insets.left - insets.right);
+		float h = (Camera.main.height - insets.top - insets.bottom);
 
 		background = new Image(TextureCache.createSolid(0xFF2d2f31), 0, 0, 800, 450){
 			@Override
@@ -153,11 +174,11 @@ public class HeroSelectScene extends PixelScene {
 				super.onClick();
 				HeroClass cls = GamesInProgress.selectedClass;
 				if (cls != null) {
-					Window w = new WndHeroInfo(GamesInProgress.selectedClass);
+					Window info = new WndHeroInfo(GamesInProgress.selectedClass);
 					if (landscape()) {
-						w.offset(Camera.main.width / 6, 0);
+						info.offset((int)(w / 6), 0);
 					}
-					ShatteredPixelDungeon.scene().addToFront(w);
+					ShatteredPixelDungeon.scene().addToFront(info);
 				}
 			}
 
@@ -218,19 +239,19 @@ public class HeroSelectScene extends PixelScene {
 //		}
 
 		if (landscape()){
-			float leftArea = Math.max(100, Camera.main.width/3f);
-			float uiHeight = Math.min(Camera.main.height-20, 300);
+			float leftArea = Math.max(100, w/3f);
+			float uiHeight = Math.min(h-20, 300);
 			float uiSpacing = (uiHeight-120)/2f;
 
 			if (uiHeight >= 160) uiSpacing -= 5;
 			if (uiHeight >= 180) uiSpacing -= 6;
 
-			background.x += leftArea/6f;
+			background.x += insets.left + leftArea/6f;
 
 			float fadeLeftScale = 47 * (leftArea - background.x)/leftArea;
 			fadeLeft.scale = new PointF(3 + Math.max(0, fadeLeftScale), background.height());
 
-			title.setPos( (leftArea - title.width())/2f, (Camera.main.height-uiHeight)/2f);
+			title.setPos(insets.left + (leftArea - title.width())/2f, (h-uiHeight)/2f);
 			align(title);
 
 			int btnWidth = HeroBtn.MIN_WIDTH + 15;
@@ -240,7 +261,7 @@ public class HeroSelectScene extends PixelScene {
 			}
 
 			int cols = (int)Math.ceil(heroBtns.size()/2f);
-			float curX = (leftArea - btnWidth * cols + (cols-1))/2f;
+			float curX = insets.left + (leftArea - btnWidth * cols + (cols-1))/2f;
 			float curY = title.bottom() + uiSpacing;
 
 			int count = 0;
@@ -260,7 +281,7 @@ public class HeroSelectScene extends PixelScene {
 			}
 
 			heroName = renderTextBlock(9);
-			heroName.setPos(0, heroBtns.get(heroBtns.size()-1).bottom()+5);
+			heroName.setPos(insets.left, heroBtns.get(heroBtns.size()-1).bottom()+5);
 			add(heroName);
 
 			if (uiHeight >= 160){
@@ -269,12 +290,12 @@ public class HeroSelectScene extends PixelScene {
 				heroDesc = renderTextBlock(5);
 			}
 			heroDesc.align(RenderedTextBlock.CENTER_ALIGN);
-			heroDesc.setPos(0, heroName.bottom()+5);
+			heroDesc.setPos(insets.left, heroName.bottom()+5);
 			add(heroDesc);
 
 			startBtn.text(Messages.titleCase(Messages.get(this, "start")));
 			startBtn.setSize(startBtn.reqWidth()+8, 21);
-			startBtn.setPos((leftArea - startBtn.width())/2f, title.top() + uiHeight - startBtn.height());
+			startBtn.setPos(insets.left + (leftArea - startBtn.width())/2f, title.top() + uiHeight - startBtn.height());
 			align(startBtn);
 
 			btnFade = new IconButton(Icons.CHEVRON.get()){
@@ -305,26 +326,37 @@ public class HeroSelectScene extends PixelScene {
 
 			int btnWidth = HeroBtn.MIN_WIDTH;
 
-			float curX = (Camera.main.width - btnWidth * heroBtns.size()) / 2f;
+			float curX = insets.left + (w - btnWidth * heroBtns.size()) / 2f;
 			if (curX > 0) {
 				btnWidth += Math.min(curX / (heroBtns.size() / 2f), 15);
-				curX = (Camera.main.width - btnWidth * heroBtns.size()) / 2f;
+				curX = insets.left + (w - btnWidth * heroBtns.size()) / 2f;
 			}
-			float curY = Camera.main.height - HeroBtn.HEIGHT + 3;
+			float curY = insets.top + h - HeroBtn.HEIGHT + 3;
 
 			for (StyledButton button : heroBtns) {
-				button.setRect(curX, curY, btnWidth, HeroBtn.HEIGHT);
+				button.setRect(curX, curY, btnWidth, HeroBtn.HEIGHT + insets.bottom);
 				curX += btnWidth;
 			}
 
-			title.setPos((Camera.main.width - title.width()) / 2f, (Camera.main.height - HeroBtn.HEIGHT - title.height() - 4));
+			//add a darkening bar along bottom
+			if (insets.bottom > 0){
+				SkinnedBlock bar = new SkinnedBlock(Camera.main.width, insets.bottom, TextureCache.createSolid(0xAA000000));
+				bar.y = h + insets.top;
+				add(bar);
+
+				PointerArea blocker = new PointerArea(0, Camera.main.width - insets.bottom, Camera.main.width, insets.bottom);
+				add(blocker);
+			}
+
+			title.setPos(insets.left + (w - title.width()) / 2f, insets.top + (h - HeroBtn.HEIGHT - title.height() - 4));
 
 			btnOptions.setRect(heroBtns.get(0).left() + 16, Camera.main.height-HeroBtn.HEIGHT-16, 20, 21);
 			optionsPane.setPos(heroBtns.get(0).left(), 0);
 		}
 
 		btnExit = new ExitButton();
-		btnExit.setPos( Camera.main.width - btnExit.width(), 0 );
+		int ofs = PixelScene.landscape() ? 0 : 4;
+		btnExit.setPos( Camera.main.width - btnExit.width() - ofs, ofs );
 		add( btnExit );
 		btnExit.visible = btnExit.active = !SPDSettings.intro();
 
@@ -378,6 +410,7 @@ public class HeroSelectScene extends PixelScene {
 
 	public void setSelectedHero(HeroClass cl){
 		GamesInProgress.selectedClass = cl;
+		GamesInProgress.randomizedClass = false;
 
 		try {
 			//loading these big jpgs fails sometimes, so we have a catch for it
@@ -390,23 +423,23 @@ public class HeroSelectScene extends PixelScene {
 		background.visible = true;
 		background.hardlight(1.5f,1.5f,1.5f);
 
-		float leftPortion = Math.max(100, Camera.main.width/3f);
+		float leftPortion = Math.max(100, (Camera.main.width - insets.left - insets.right)/3f);
 
 		if (landscape()) {
 
 			heroName.text(Messages.titleCase(cl.title()));
 			heroName.hardlight(Window.TITLE_COLOR);
-			heroName.setPos((leftPortion - heroName.width() - 20)/2f, heroName.top());
+			heroName.setPos(insets.left + (leftPortion - heroName.width() - 20)/2f, heroName.top());
 			align(heroName);
 
 			heroDesc.text(cl.shortDesc());
 			heroDesc.maxWidth(80);
-			heroDesc.setPos((leftPortion - heroDesc.width())/2f, heroName.bottom() + 5);
+			heroDesc.setPos(insets.left +(leftPortion - heroDesc.width())/2f, heroName.bottom() + 5);
 			align(heroDesc);
 
 			while(startBtn.top() < heroDesc.bottom()){
 				heroDesc.maxWidth(heroDesc.maxWidth()+10);
-				heroDesc.setPos(Math.max(0, (leftPortion - heroDesc.width())/2f), heroName.bottom() + 5);
+				heroDesc.setPos(Math.max(insets.left, (leftPortion - heroDesc.width())/2f), heroName.bottom() + 5);
 				align(heroDesc);
 			}
 
@@ -427,7 +460,7 @@ public class HeroSelectScene extends PixelScene {
 			startBtn.text(Messages.titleCase(cl.title()));
 			startBtn.setSize(startBtn.reqWidth() + 8, 21);
 
-			startBtn.setPos((Camera.main.width - startBtn.width())/2f, (Camera.main.height - HeroBtn.HEIGHT + 2 - startBtn.height()));
+			startBtn.setPos((Camera.main.width - startBtn.width())/2f, (Camera.main.height - insets.bottom - HeroBtn.HEIGHT + 2 - startBtn.height()));
 			PixelScene.align(startBtn);
 
 			infoButton.visible = infoButton.active = true;
@@ -490,13 +523,15 @@ public class HeroSelectScene extends PixelScene {
 
 		if (landscape()){
 
-			background.x = (Camera.main.width - background.width())/2f;
+			int w = (int)(Camera.main.width - insets.left - insets.right);
 
-			float leftPortion = Math.max(100, Camera.main.width/3f);
+			background.x = insets.left + (w - background.width())/2f;
+
+			float leftPortion = Math.max(100, w/3f);
 
 			background.x += (leftPortion/2f)*alpha;
 
-			float fadeLeftScale = 47 * (leftPortion - background.x)/leftPortion;
+			float fadeLeftScale = 47 * (leftPortion - (background.x - insets.left))/leftPortion;
 			fadeLeft.scale.x = 3 + Math.max(fadeLeftScale, 0)*alpha;
 			fadeLeft.x = background.x-4;
 			fadeRight.x = background.x + background.width() + 4;
@@ -570,6 +605,15 @@ public class HeroSelectScene extends PixelScene {
 				setSelectedHero(cl);
 			}
 		}
+
+		@Override
+		protected void layout() {
+			super.layout();
+			//if we're super tall (i.e. rendering into display inset) then put hero at the top
+			if (height > 30) {
+				icon.y = y + (HEIGHT - icon.height()) / 2f;
+			}
+		}
 	}
 
 	private class GameOptions extends Component {
@@ -578,6 +622,8 @@ public class HeroSelectScene extends PixelScene {
 
 		private ArrayList<StyledButton> buttons;
 		private ArrayList<ColorBlock> spacers;
+
+		protected StyledButton challengeButton;
 
 		@Override
 		protected void createChildren() {
@@ -746,7 +792,7 @@ public class HeroSelectScene extends PixelScene {
 //			add(dailyButton);
 //			buttons.add(dailyButton);
 
-			StyledButton challengeButton = new StyledButton(Chrome.Type.BLANK, Messages.get(WndModifiers.class, "title"), 6){
+			challengeButton = new StyledButton(Chrome.Type.BLANK, Messages.get(WndModifiers.class, "title"), 6){
 				@Override
 				protected void onClick() {
 //					if (!Badges.isUnlocked(Badges.Badge.VICTORY) && !DeviceCompat.isDebug()){
@@ -774,11 +820,134 @@ public class HeroSelectScene extends PixelScene {
 //			add(challengeButton);
 //			buttons.add(challengeButton);
 
+			int unlockedCount = 0;
+			for (HeroClass cls : HeroClass.values()){
+				if (cls.isUnlocked()) unlockedCount++;
+			}
+
+			if (unlockedCount >= 2) {
+				StyledButton randomButton = new StyledButton(Chrome.Type.BLANK, Messages.get(HeroSelectScene.class, "randomize"), 6) {
+					@Override
+					protected void onClick() {
+
+						if (Badges.isUnlocked(Badges.Badge.VICTORY) || DeviceCompat.isDebug()){
+							ShatteredPixelDungeon.scene().addToFront(new WndRandomize());
+						} else {
+
+							HeroClass randomCls;
+							do {
+								randomCls = Random.oneOf(HeroClass.values());
+							} while (!randomCls.isUnlocked());
+							setSelectedHero(randomCls);
+							GamesInProgress.randomizedClass = true;
+						}
+					}
+				};
+				randomButton.leftJustify = true;
+				randomButton.icon(Icons.SHUFFLE.get());
+				buttons.add(randomButton);
+				add(randomButton);
+			}
+
 			for (int i = 1; i < buttons.size(); i++){
 				ColorBlock spc = new ColorBlock(1, 1, 0xFF000000);
 				add(spc);
 				spacers.add(spc);
 			}
+		}
+
+		private class WndRandomize extends Window {
+
+			CheckBox chkHero;
+			CheckBox chkChals;
+			OptionSlider optChals;
+
+			public WndRandomize(){
+				super();
+
+				chkHero = new CheckBox(Messages.get(HeroSelectScene.class, "randomize_hero")){
+					@Override
+					public void checked(boolean value) {
+						super.checked(value);
+						heroWasRandomized = value;
+					}
+				};
+				chkHero.setRect(0, 0, 120, 16);
+				chkHero.checked(heroWasRandomized);
+				add(chkHero);
+
+				chkChals = new CheckBox(Messages.get(HeroSelectScene.class, "randomize_chals")){
+					@Override
+					public void checked(boolean value) {
+						super.checked(value);
+						optChals.enable(value);
+						chalWasRandomized = value;
+					}
+				};
+				chkChals.setRect(0, 20, 120, 16);
+				add(chkChals);
+
+				int max = Modifiers.Companion.randomizeLimit();
+				optChals = new OptionSlider(Messages.get(HeroSelectScene.class, "randomize_chals_title"), "0", Integer.toString(max), 0, max) {
+					@Override
+					protected void onChange() {
+						//do nothing immediately
+					}
+				};
+				optChals.enable(false);
+				optChals.setSelectedValue(SPDSettings.customModifiers().activeChallengesCount());
+				optChals.setRect(0, 38, 120, 22);
+				add(optChals);
+
+				chkChals.checked(chalWasRandomized);
+
+				RedButton btnCancel = new RedButton(Messages.get(HeroSelectScene.class, "randomize_cancel")){
+					@Override
+					protected void onClick() {
+						super.onClick();
+						hide();
+					}
+				};
+				btnCancel.setRect(61, 64, 60, 16);
+				add(btnCancel);
+
+				RedButton btnConfirm = new RedButton(Messages.get(HeroSelectScene.class, "randomize_confirm")){
+					@Override
+					protected void onClick() {
+						super.onClick();
+						hide();
+
+                        ShatteredPixelDungeon.scene().addToFront(new WndTrials());
+
+                        if (chkChals.checked()){
+							int chals = optChals.getSelectedValue();
+                            Modifiers mods = Modifiers.Companion.randomModifiers(chals);
+
+                            Trial custom = Trial.Companion.getCUSTOM();
+                            custom.setModifiers(mods);
+                            Trials.Companion.setCurTrial(custom);
+                            ShatteredPixelDungeon.scene().addToFront(new WndModifiers(custom));
+						}
+
+						if (chkHero.checked()){
+							HeroClass randomCls;
+							do {
+								randomCls = Random.oneOf(HeroClass.values());
+							} while (!randomCls.isUnlocked());
+							setSelectedHero(randomCls);
+							GamesInProgress.randomizedClass = true;
+						} else {
+							setSelectedHero(GamesInProgress.selectedClass);
+						}
+					}
+				};
+				btnConfirm.setRect(0, 64, 60, 16);
+				add(btnConfirm);
+
+				resize(120, (int)btnConfirm.bottom());
+
+			}
+
 		}
 
 		@Override

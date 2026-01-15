@@ -56,7 +56,7 @@ public class Challenges {
 //	};
 
 	public static int activeChallenges(){
-		return Dungeon.tcpdData.getModifiers().activeChallengesCount();
+        return Dungeon.tcpdData.getModifiers().activeChallengesCount();
 	}
 
 	public static boolean isItemBlocked( Item item ){

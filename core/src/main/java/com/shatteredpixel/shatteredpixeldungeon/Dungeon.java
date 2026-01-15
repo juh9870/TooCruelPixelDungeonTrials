@@ -69,6 +69,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.PrisonLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.SewerBossLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.SewerLevel;
+import com.shatteredpixel.shatteredpixeldungeon.levels.VaultLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.LevelTransition;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.secret.SecretRoom;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SpecialRoom;
@@ -184,8 +185,8 @@ public class Dungeon {
 
 	}
 
-	public static TCPDData tcpdData = new TCPDData();
-	public static int mobsToChampion;
+    public static TCPDData tcpdData = new TCPDData();
+	public static float mobsToChampion;
 
 	public static Hero hero;
 	public static Level level;
@@ -238,8 +239,8 @@ public class Dungeon {
 	public static void init() {
 
 		initialVersion = version = Game.versionCode;
-		tcpdData = new TCPDData(Trials.Companion.getCurTrial());
-		mobsToChampion = -1;
+        tcpdData = new TCPDData(Trials.Companion.getCurTrial());
+		mobsToChampion = 1;
 
 		Random.crooked_die = Modifier.CROOKED_DIE.active();
 
@@ -374,6 +375,12 @@ public class Dungeon {
 				case 14:
 					level = new MiningLevel();
 					break;
+				case 16:
+				case 17:
+				case 18:
+				case 19:
+					level = new VaultLevel();
+					break;
 				default:
 					level = new DeadEndLevel();
 			}
@@ -381,8 +388,8 @@ public class Dungeon {
 			level = new DeadEndLevel();
 		}
 
-		//dead end levels get cleared, don't count as generated
-		if (!(level instanceof DeadEndLevel)){
+		//dead end levels (and vault levels for now!) get cleared, don't count as generated
+		if (!(level instanceof DeadEndLevel || level instanceof VaultLevel)){
 			//this assumes that we will never have a depth value outside the range 0 to 999
 			// or -500 to 499, etc.
 			if (!generatedLevels.contains(depth + 1000*branch)) {
@@ -751,8 +758,8 @@ public class Dungeon {
 		QuickSlotButton.reset();
 		Toolbar.swappedQuickslots = false;
 
-		Dungeon.tcpdData = (TCPDData) bundle.get( TCPD_DATA );
-		Dungeon.mobsToChampion = bundle.getInt( MOBS_TO_CHAMPION );
+        Dungeon.tcpdData = (TCPDData) bundle.get( TCPD_DATA );
+		Dungeon.mobsToChampion = bundle.getFloat( MOBS_TO_CHAMPION );
 		
 		Dungeon.level = null;
 		Dungeon.depth = -1;
