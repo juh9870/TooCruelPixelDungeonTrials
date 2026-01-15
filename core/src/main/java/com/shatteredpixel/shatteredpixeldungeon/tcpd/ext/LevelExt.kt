@@ -106,6 +106,8 @@ fun Level.destroyWall(cell: Int) {
         terrain == Terrain.STATUE_SP ||
         terrain == Terrain.SECRET_DOOR ||
         terrain == Terrain.CRYSTAL_DOOR ||
+        terrain == Terrain.REGION_DECO ||
+        terrain == Terrain.REGION_DECO_ALT ||
         terrain == Terrain.BOOKSHELF
     ) {
         strongDestroy(cell)
