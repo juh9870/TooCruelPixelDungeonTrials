@@ -270,6 +270,7 @@ enum class Modifier(
 
     companion object {
         val ALL: Array<Modifier> = Modifier.entries.sortedBy { it.id }.toTypedArray()
+        val COUNT: Int = ALL.size
         private val conflicts = mutableMapOf<Modifier, MutableList<Modifier>>()
 
         init {
@@ -355,7 +356,8 @@ enum class Tag(
 
     fun localizedDesc(): String = Messages.get(ModifierTag::class.java, name.lowercase() + "_desc")
 
-    fun isDifficulty() = this == SILLY || this == POSITIVE || this == NORMAL || this == HARD || this == EXTREME
+    fun isDifficulty() =
+        this == SILLY || this == POSITIVE || this == NORMAL || this == HARD || this == EXTREME
 
     fun icon(): TextureDescriptor =
         when (this) {
@@ -429,9 +431,14 @@ class Modifiers() : Bundlable {
             return encoded
         }
 
-        fun decodeBits(encoded: String): BooleanArray = encoded.decodeBase58().asBits().trimEnd(false)
+        fun decodeBits(encoded: String): BooleanArray =
+            encoded.decodeBase58().asBits().trimEnd(false)
 
         fun debugModeActive(): Boolean = DeviceCompat.isDebug()
+
+        fun randomModifiers(amount: Int): Modifiers {
+            TODO()
+        }
 
         const val MODIFIERS = "modifiers"
 
@@ -492,7 +499,8 @@ class Modifiers() : Bundlable {
         BArray.setFalse(modifiers)
     }
 
-    fun isItemBlocked(item: Item): Boolean = Modifier.entries.any { modifiers[it.id] && it._isItemBlocked(item) }
+    fun isItemBlocked(item: Item): Boolean =
+        Modifier.entries.any { modifiers[it.id] && it._isItemBlocked(item) }
 
     fun isActionBanned(
         item: Item,

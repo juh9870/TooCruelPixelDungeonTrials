@@ -26,6 +26,8 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3FileHandle;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Preferences;
+import com.badlogic.gdx.utils.Architecture;
+import com.badlogic.gdx.utils.Os;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings;
@@ -57,10 +59,11 @@ public class DesktopLauncher {
 		//detection for FreeBSD (which is equivalent to linux for us)
 		//TODO might want to merge request this to libGDX
 		if (System.getProperty("os.name").contains("FreeBSD")) {
-			SharedLibraryLoader.isLinux = true;
+			SharedLibraryLoader.os = Os.Linux;
 			//this overrides incorrect values set in SharedLibraryLoader's static initializer
-			SharedLibraryLoader.isIos = false;
-			SharedLibraryLoader.is64Bit = System.getProperty("os.arch").contains("64") || System.getProperty("os.arch").startsWith("armv8");
+			if (System.getProperty("os.arch").contains("64") || System.getProperty("os.arch").startsWith("armv8")){
+				SharedLibraryLoader.bitness = Architecture.Bitness._64;
+			}
 		}
 		
 		final String title;
@@ -158,18 +161,18 @@ public class DesktopLauncher {
 
 		String basePath = "";
 		Files.FileType baseFileType = null;
-		if (SharedLibraryLoader.isWindows) {
-			String winTitle = title.replace(":", "");
+		if (SharedLibraryLoader.os == Os.Windows) {
+            String winTitle = title.replace(":", "");
 			if (System.getProperties().getProperty("os.name").equals("Windows XP")) {
 				basePath = "Application Data/." + vendor + "/" + winTitle + "/";
 			} else {
 				basePath = "AppData/Roaming/." + vendor + "/" + winTitle + "/";
 			}
 			baseFileType = Files.FileType.External;
-		} else if (SharedLibraryLoader.isMac) {
+		} else if (SharedLibraryLoader.os == Os.MacOsX) {
 			basePath = "Library/Application Support/" + title + "/";
 			baseFileType = Files.FileType.External;
-		} else if (SharedLibraryLoader.isLinux) {
+		} else if (SharedLibraryLoader.os == Os.Linux) {
 			String XDGHome = System.getenv("XDG_DATA_HOME");
 			if (XDGHome == null) XDGHome = System.getProperty("user.home") + "/.local/share";
 

@@ -38,6 +38,7 @@ public class Challenges {
 	public static final int STRONGER_BOSSES 	= 256;
 
 	public static final int MAX_VALUE           = 511;
+//	public static final int MAX_CHALS           = 9;
 
 //	public static final String[] NAME_IDS = {
 //			"champion_enemies",
@@ -56,8 +57,12 @@ public class Challenges {
 //	};
 
 	public static int activeChallenges(){
-		return Dungeon.tcpdData.getModifiers().activeChallengesCount();
+        return Dungeon.tcpdData.getModifiers().activeChallengesCount();
 	}
+
+//	public static int activeChallenges(int mask){
+//        TODO
+//	}
 
 	public static boolean isItemBlocked( Item item ){
 
