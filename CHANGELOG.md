@@ -6,6 +6,10 @@
 
 > Released on ReleaseDate
 
+## [0.17.0]
+
+> Released on 2026-01-15
+
 ### Added
 
 - Updated to SHPD to v3.3.3
@@ -480,7 +484,8 @@
 - Project seeded on top of Shattered Pixel Dungeon v3.0.0
 
 <!-- next-url -->
-[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.16.2...HEAD
+[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.17.0...HEAD
+[0.17.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.16.2...TCPD-0.17.0
 [0.16.2]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.16.1...TCPD-0.16.2
 [0.16.1]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.16.0...TCPD-0.16.1
 [0.16.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.16.0-beta.1...TCPD-0.16.0
