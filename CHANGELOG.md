@@ -6,10 +6,14 @@
 
 > Released on ReleaseDate
 
+## [0.17.3]
+
+> Released on 2026-01-16
+
 ### Changed
 
-- Whiplash now triggers on 0 damage hits (by juh9870)
-- Forced Pacifism changed to reduce damage to 0 instead of giving invulnerability (by juh9870)
+- Whiplash now triggers on 0 damage hits
+- Forced Pacifism changed to reduce damage to 0 instead of giving invulnerability
 
 ## [0.17.2]
 
@@ -501,7 +505,8 @@
 - Project seeded on top of Shattered Pixel Dungeon v3.0.0
 
 <!-- next-url -->
-[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.17.2...HEAD
+[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.17.3...HEAD
+[0.17.3]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.17.2...TCPD-0.17.3
 [0.17.2]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.17.1...TCPD-0.17.2
 [0.17.1]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.17.0...TCPD-0.17.1
 [0.17.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.16.2...TCPD-0.17.0

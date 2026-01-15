@@ -17,8 +17,8 @@ allprojects {
         appName = 'Too Cruel Pixel Dungeon: Trials'
         appPackageName = 'com.juh9870.toocruelpixeldungeontrials'
 
-        appVersionCode = 890
-        appVersionName = '0.17.2'
+        appVersionCode = 891
+        appVersionName = '0.17.3'
 
         appJavaCompatibility = JavaVersion.VERSION_11
 
