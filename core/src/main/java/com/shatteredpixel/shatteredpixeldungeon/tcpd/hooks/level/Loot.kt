@@ -41,6 +41,9 @@ fun Level.applySecondTry() {
         if (map[i] == Terrain.LOCKED_DOOR) {
             set(i, Terrain.DOOR, this)
         }
+        if (map[i] == Terrain.CRYSTAL_DOOR) {
+            set(i, Terrain.EMPTY, this)
+        }
         if (map[i] == Terrain.BARRICADE) {
             set(i, Terrain.EMBERS, this)
             barricades++
