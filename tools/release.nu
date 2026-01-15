@@ -51,6 +51,10 @@ def main [kind: string@options = "", secondaryKind?: string@mainOptions = "patch
     mut version = $buildGradleContent | lines | parse -r 'appVersionName = \u0027(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)(?:(?:-rc.(?<rc>\d+))|(?:-alpha.(?<alpha>\d+))|(?:-beta.(?<beta>\d+)))?\u0027' | get 0
     mut versionCode = $buildGradleContent | lines | parse -r 'appVersionCode = (?<versionCode>\d+)' | get 0.versionCode | into int
 
+    $version.alpha = $version.alpha | default ""
+    $version.beta = $version.beta | default ""
+    $version.rc = $version.rc | default ""
+
     $versionCode = $versionCode + 1
 
     match $kind {
@@ -91,15 +95,15 @@ def main [kind: string@options = "", secondaryKind?: string@mainOptions = "patch
         }
     }
 
-    let versionString = $"($version.major).($version.minor).($version.patch)(
-        if $version.alpha != "" {
+    let suffix = if $version.alpha != "" {
+            print $"Alpha is set to ($version.alpha)"
             $"-alpha.($version.alpha)"
         } else if $version.beta != "" {
             $"-beta.($version.beta)"
         } else if $version.rc != "" {
             $"-rc.($version.rc)"
         }
-    )"
+    let versionString = $"($version.major).($version.minor).($version.patch)($suffix)"
 
     let tagName = $"($TAG_PREFIX)($versionString)"
 
