@@ -6,6 +6,10 @@
 
 > Released on ReleaseDate
 
+### Fixed
+
+- Modifier randomization was locked until the first win (by juh9870)
+
 ## [0.17.1]
 
 > Released on 2026-01-15
