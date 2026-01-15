@@ -42,6 +42,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DefSkillChange
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DefenseProcBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DelayedBeckon
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DrRollBuff
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.ForcedPacifismBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.FullSceneUpdater
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.HtBoostBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.HydraBuff
@@ -572,6 +573,9 @@ fun Mob.applyModifiers() {
     }
     if (Modifier.HYDRA.active()) {
         Buff.affect(this, HydraBuff.EnemyTracker::class.java)
+    }
+    if (Modifier.FORCED_PACIFISM.active()) {
+        Buff.affect(this, ForcedPacifismBuff::class.java)
     }
 }
 

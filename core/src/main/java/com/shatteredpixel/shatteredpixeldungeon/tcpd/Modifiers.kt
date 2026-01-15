@@ -235,7 +235,13 @@ enum class Modifier(
         dependencies = arrayOf(HEAD_START.id, PROTECTED_GOODS.id),
         tags = arrayOf(Tag.BOSS, Tag.DUNGEON),
     ),
-    // Next ID: 96
+    FORCED_PACIFISM(
+        96,
+        dependencies = arrayOf(UNINSPIRED_TO_LEARN.id),
+        tags = arrayOf(Tag.ENEMY, Tag.COMBAT, Tag.EXTREME),
+    ),
+    BLESSING_FOR_THE_WORTHY(97, tags = arrayOf(Tag.POSITIVE, Tag.BOSS)),
+    // Next ID: 97
     ;
 
     val tags = Tag.process(dependencies.isNotEmpty(), tags)

@@ -21,9 +21,20 @@ import kotlin.math.max
 
 class SafetyBuffer : Buff() {
     var stacks = MAX_STACKS
+    var damage = SMITE_DAMAGE
 
     init {
         type = buffType.POSITIVE
+    }
+
+    fun refresh(): SafetyBuffer {
+        stacks = MAX_STACKS
+        return this
+    }
+
+    fun set(damage: Int): SafetyBuffer {
+        if (damage > this.damage) this.damage = damage
+        return this
     }
 
     override fun act(): Boolean {
@@ -58,7 +69,7 @@ class SafetyBuffer : Buff() {
     }
 
     private fun hitMob(mob: Mob) {
-        affect(mob, SafetySmitePrep::class.java)
+        affect(mob, SafetySmitePrep::class.java).set(damage)
     }
 
     override fun icon(): Int = BuffIndicator.WEAPON
@@ -76,14 +87,25 @@ class SafetyBuffer : Buff() {
     override fun storeInBundle(bundle: Bundle) {
         super.storeInBundle(bundle)
         bundle.put(STACKS, stacks)
+        bundle.put(DAMAGE, damage)
     }
 
     override fun restoreFromBundle(bundle: Bundle) {
         super.restoreFromBundle(bundle)
         stacks = bundle.getInt(STACKS)
+        if (bundle.contains(DAMAGE)) {
+            damage = bundle.getInt(DAMAGE)
+        }
     }
 
     class SafetySmitePrep : Buff() {
+        var damage = SMITE_DAMAGE
+
+        fun set(damage: Int): SafetySmitePrep {
+            this.damage = damage
+            return this
+        }
+
         override fun act(): Boolean {
             val hero = Dungeon.hero
             if (hero == null) {
@@ -96,7 +118,7 @@ class SafetyBuffer : Buff() {
                 return true
             }
 
-            affect(target, SafetySmite::class.java)
+            affect(target, SafetySmite::class.java).set(damage)
             affect(target, Paralysis::class.java, Paralysis.DURATION)
             Sample.INSTANCE.play(Assets.Sounds.LIGHTNING)
             if (hero.sprite != null && target.sprite != null) {
@@ -118,14 +140,33 @@ class SafetyBuffer : Buff() {
                 // slight random to mess up ordering of smites
                 spend(TICK * Random.Float(1f, 1.01f))
             }
+
+        override fun storeInBundle(bundle: Bundle) {
+            super.storeInBundle(bundle)
+            bundle.put(DAMAGE, damage)
+        }
+
+        override fun restoreFromBundle(bundle: Bundle) {
+            super.restoreFromBundle(bundle)
+            if (bundle.contains(DAMAGE)) {
+                damage = bundle.getInt(DAMAGE)
+            }
+        }
     }
 
     class SafetySmite :
         Buff(),
         DamageIconSource {
+        var damage = SMITE_DAMAGE
+
+        fun set(damage: Int): SafetySmite {
+            this.damage = damage
+            return this
+        }
+
         override fun act(): Boolean {
             target.buff(Paralysis::class.java)?.detach()
-            target.damage(SMITE_DAMAGE, this)
+            target.damage(damage, this)
 
             val origin = target.sprite.center()
             origin.y -= target.sprite.camera().screenHeight()
@@ -151,11 +192,24 @@ class SafetyBuffer : Buff() {
             super.attachTo(target).also {
                 spend(TICK)
             }
+
+        override fun storeInBundle(bundle: Bundle) {
+            super.storeInBundle(bundle)
+            bundle.put(DAMAGE, damage)
+        }
+
+        override fun restoreFromBundle(bundle: Bundle) {
+            super.restoreFromBundle(bundle)
+            if (bundle.contains(DAMAGE)) {
+                damage = bundle.getInt(DAMAGE)
+            }
+        }
     }
 
     companion object {
         private const val STACKS = "stacks"
+        private const val DAMAGE = "damage"
         private const val MAX_STACKS = 10
-        private const val SMITE_DAMAGE = 10
+        const val SMITE_DAMAGE = 10
     }
 }

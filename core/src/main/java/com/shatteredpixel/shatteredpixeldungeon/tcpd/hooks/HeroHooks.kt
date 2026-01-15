@@ -23,6 +23,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Arrowhead
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.BlessingWorthyBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.BossRush
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.BrimstoneNeutralizer
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.CasualApproach
@@ -47,7 +48,6 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.UninspiredToLe
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.XpMultiplierBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.forEachBuff
 import com.watabou.noosa.tweeners.Delayer
-import com.watabou.noosa.tweeners.Tweener.Listener
 import com.watabou.utils.Random
 
 fun Hero.heroLiveHook() {
@@ -108,6 +108,9 @@ fun Hero.heroLiveHook() {
     }
     if (Modifier.UNINSPIRED_TO_LEARN.active()) {
         Buff.affect(this, UninspiredToLearnBuff::class.java)
+    }
+    if (Modifier.BLESSING_FOR_THE_WORTHY.active()) {
+        Buff.affect(this, BlessingWorthyBuff::class.java)
     }
 }
 
