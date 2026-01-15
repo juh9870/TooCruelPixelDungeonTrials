@@ -34,6 +34,7 @@ import com.shatteredpixel.shatteredpixeldungeon.journal.Journal;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifiers;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Trial;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Trials;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.windows.WndModifiers;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.windows.WndTrials;
@@ -886,7 +887,7 @@ public class HeroSelectScene extends PixelScene {
 				chkChals.setRect(0, 20, 120, 16);
 				add(chkChals);
 
-				int max = Modifier.Companion.getCOUNT();
+				int max = Modifiers.Companion.randomizeLimit();
 				optChals = new OptionSlider(Messages.get(HeroSelectScene.class, "randomize_chals_title"), "0", Integer.toString(max), 0, max) {
 					@Override
 					protected void onChange() {
@@ -916,15 +917,16 @@ public class HeroSelectScene extends PixelScene {
 						super.onClick();
 						hide();
 
-						if (chkChals.checked()){
+                        ShatteredPixelDungeon.scene().addToFront(new WndTrials());
+
+                        if (chkChals.checked()){
 							int chals = optChals.getSelectedValue();
                             Modifiers mods = Modifiers.Companion.randomModifiers(chals);
 
-                            SPDSettings.customModifiers(mods);
-
-//							SPDSettings.challenges(mask);
-//							challengeButton.icon(Icons.get(SPDSettings.challenges() > 0 ? Icons.CHALLENGE_COLOR : Icons.CHALLENGE_GREY));
-//							ShatteredPixelDungeon.scene().addToFront(new WndChallenges(mask, false));
+                            Trial custom = Trial.Companion.getCUSTOM();
+                            custom.setModifiers(mods);
+                            Trials.Companion.setCurTrial(custom);
+                            ShatteredPixelDungeon.scene().addToFront(new WndModifiers(custom));
 						}
 
 						if (chkHero.checked()){

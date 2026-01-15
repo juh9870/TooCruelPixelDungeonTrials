@@ -61,6 +61,7 @@ open class WndModifiers(
 ) : TcpdWindow() {
     constructor(data: TCPDData) : this(data.modifiers, data.trial, false)
     constructor(data: TCPDGameInfoData) : this(data.modifiers, data.trials, false)
+    constructor(trial: Trial) : this(Modifiers(trial.modifiers), trial, false)
 
     init {
         maxSize = Vec2(125, (PixelScene.uiCamera.height * 0.9f).toInt())

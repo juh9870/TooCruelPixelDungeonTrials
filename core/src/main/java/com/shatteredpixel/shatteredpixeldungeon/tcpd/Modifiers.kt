@@ -27,6 +27,7 @@ import com.watabou.utils.BArray
 import com.watabou.utils.Bundlable
 import com.watabou.utils.Bundle
 import com.watabou.utils.DeviceCompat
+import com.watabou.utils.Random
 
 enum class Modifier(
     val id: Int,
@@ -270,7 +271,6 @@ enum class Modifier(
 
     companion object {
         val ALL: Array<Modifier> = Modifier.entries.sortedBy { it.id }.toTypedArray()
-        val COUNT: Int = ALL.size
         private val conflicts = mutableMapOf<Modifier, MutableList<Modifier>>()
 
         init {
@@ -356,8 +356,7 @@ enum class Tag(
 
     fun localizedDesc(): String = Messages.get(ModifierTag::class.java, name.lowercase() + "_desc")
 
-    fun isDifficulty() =
-        this == SILLY || this == POSITIVE || this == NORMAL || this == HARD || this == EXTREME
+    fun isDifficulty() = this == SILLY || this == POSITIVE || this == NORMAL || this == HARD || this == EXTREME
 
     fun icon(): TextureDescriptor =
         when (this) {
@@ -431,14 +430,54 @@ class Modifiers() : Bundlable {
             return encoded
         }
 
-        fun decodeBits(encoded: String): BooleanArray =
-            encoded.decodeBase58().asBits().trimEnd(false)
+        fun decodeBits(encoded: String): BooleanArray = encoded.decodeBase58().asBits().trimEnd(false)
 
         fun debugModeActive(): Boolean = DeviceCompat.isDebug()
 
         fun randomModifiers(amount: Int): Modifiers {
-            TODO()
+            if (amount >= Modifier.ALL.size / 4) {
+                // Fallback to simple algorithm if too many mods are requested
+                val mods = Modifiers()
+
+                repeat(amount) {
+                    mods.enable(Random.element(Modifier.ALL))
+                }
+
+                return mods
+            }
+
+            val mods = Modifiers()
+
+            val nTries = 1000
+            repeat(nTries) { i ->
+                mods.disableAll()
+                while (mods.activeChallengesCount() < amount) {
+                    mods.enable(Random.element(Modifier.ALL))
+                }
+                // 75% chance to not allow positive modifiers and 50% chance to
+                //  not allow silly modifiers in the first half of attempts
+                if (mods.activeChallengesCount() == amount) {
+                    if (i < nTries / 2) {
+                        val roll = Random.Float()
+                        for (mod in Modifier.ALL) {
+                            if (mods.isEnabled(mod)) {
+                                if (roll < 0.5 && mod.tags.contains(Tag.SILLY)) {
+                                    return@repeat
+                                }
+                                if (roll < 0.75 && mod.tags.contains(Tag.POSITIVE)) {
+                                    return@repeat
+                                }
+                            }
+                        }
+                    }
+
+                    return mods
+                }
+            }
+            return mods
         }
+
+        fun randomizeLimit(): Int = 9
 
         const val MODIFIERS = "modifiers"
 
@@ -499,8 +538,7 @@ class Modifiers() : Bundlable {
         BArray.setFalse(modifiers)
     }
 
-    fun isItemBlocked(item: Item): Boolean =
-        Modifier.entries.any { modifiers[it.id] && it._isItemBlocked(item) }
+    fun isItemBlocked(item: Item): Boolean = Modifier.entries.any { modifiers[it.id] && it._isItemBlocked(item) }
 
     fun isActionBanned(
         item: Item,
