@@ -6,6 +6,26 @@
 
 > Released on ReleaseDate
 
+### Added
+
+- Updated to SHPD to v3.3.3
+- Forced Pacifism modifier
+- Blessing for the Worthy modifier
+- SHPD's randomization feature applies to the modifiers (max amount is limited, silly and positive modifiers are less likely to be selected)
+- Warning about infinite bleeding for crooked die
+
+### Fixed
+
+- Eternal Flames not actually preventing fire spread
+- Crash with mimics modifiers and postpaid loot
+- Items floating in the air with Over The Edge
+- Rings and Artifacts are not affected by the Cursed modifier
+- Crystal doors still locked with second try
+- Safety Buffer crash on invalid target sprite
+- Moles not destroying regional solids
+- Items spawning over pits with postpaid loot and over the edge
+- Postpaid Goods not properly updating the map after dropping items
+
 ## [0.16.2]
 
 > Released on 2025-07-27
