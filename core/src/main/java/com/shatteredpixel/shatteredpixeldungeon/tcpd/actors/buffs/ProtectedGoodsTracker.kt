@@ -6,6 +6,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Awareness
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
 import com.shatteredpixel.shatteredpixeldungeon.items.Item
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.furrowCell
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.mimicsEncaseHeap
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.weightedPair
@@ -83,6 +84,7 @@ class ProtectedGoodsTracker :
         items.clear()
         affect(target, Awareness::class.java, Awareness.DURATION)
         Dungeon.observe()
+        GameScene.updateMap()
 
         diactivate()
         return true

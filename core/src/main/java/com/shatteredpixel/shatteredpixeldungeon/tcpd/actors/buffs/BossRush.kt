@@ -30,7 +30,7 @@ class BossRush : Buff() {
             GLog.i(Messages.get(BossRush::class.java, "landing"))
             announcements = MAX_ANNOUNCEMENTS
         } else if (
-            // Activate on floor 2, but now when prison express is active
+            // Activate on floor 2, but not when prison express is active
             (Dungeon.depth == 2 && !Modifier.PRISON_EXPRESS.active()) ||
             // otherwise activate on every floor after a boss
             (Dungeon.depth % 5 == 1 && Dungeon.depth > 1) ||
